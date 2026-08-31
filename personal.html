@@ -9,17 +9,24 @@
     <link rel="stylesheet" href="css/components.css">
 </head>
 <body>
+
+<div class="subnav">
+    <a href="index.html" class="back-link">&larr; Project Nebo</a>
+</div>
+
 <header class="site-header">
     <div>
-        <h1><a href="index.html" class="home-link">Project Nebo</a></h1>
-        <p>Personal Generator</p>
+        <h1>Personal Generator</h1>
+        <p>Identity, contact information, usernames, and passwords.</p>
     </div>
     <button id="themeToggle">
         🌙
     </button>
 </header>
+
 <main class="container">
     <section class="generator-panel">
+
         <div class="field-group">
             <label for="firstName">First Name</label>
             <div class="field-value-wrap">
@@ -27,6 +34,7 @@
                 <button class="copy-btn" data-target="firstName" title="Copy">📋</button>
             </div>
         </div>
+
         <div class="field-group">
             <label for="lastName">Last Name</label>
             <div class="field-value-wrap">
@@ -34,6 +42,7 @@
                 <button class="copy-btn" data-target="lastName" title="Copy">📋</button>
             </div>
         </div>
+
         <div class="field-group">
             <label for="fullName">Full Name</label>
             <div class="field-value-wrap">
@@ -41,6 +50,7 @@
                 <button class="copy-btn" data-target="fullName" title="Copy">📋</button>
             </div>
         </div>
+
         <div class="field-group">
             <label for="dob">Date of Birth</label>
             <div class="field-value-wrap">
@@ -48,13 +58,26 @@
                 <button class="copy-btn" data-target="dob" title="Copy">📋</button>
             </div>
         </div>
-        <div class="field-group">
-            <label for="age">Age</label>
-            <div class="field-value-wrap">
-                <span id="age" class="field-value">—</span>
-                <button class="copy-btn" data-target="age" title="Copy">📋</button>
+
+        <!-- Age range control lives with the field it drives (also feeds DOB above). -->
+        <div class="field-group stacked">
+            <div class="field-row">
+                <label for="age">Age</label>
+                <div class="field-value-wrap">
+                    <span id="age" class="field-value">—</span>
+                    <button class="copy-btn" data-target="age" title="Copy">📋</button>
+                </div>
+            </div>
+            <div class="field-control-row">
+                <span class="control-label">Age range (also sets DOB)</span>
+                <div class="age-range-inputs">
+                    <input type="number" id="minAge" value="18" min="0" max="120">
+                    <span>to</span>
+                    <input type="number" id="maxAge" value="65" min="0" max="120">
+                </div>
             </div>
         </div>
+
         <div class="field-group">
             <label for="ssn">SSN</label>
             <div class="field-value-wrap">
@@ -62,6 +85,7 @@
                 <button class="copy-btn" data-target="ssn" title="Copy">📋</button>
             </div>
         </div>
+
         <div class="field-group">
             <label for="phone">Phone</label>
             <div class="field-value-wrap">
@@ -69,6 +93,7 @@
                 <button class="copy-btn" data-target="phone" title="Copy">📋</button>
             </div>
         </div>
+
         <div class="field-group">
             <label for="street">Street</label>
             <div class="field-value-wrap">
@@ -76,6 +101,7 @@
                 <button class="copy-btn" data-target="street" title="Copy">📋</button>
             </div>
         </div>
+
         <div class="field-group">
             <label for="city">City</label>
             <div class="field-value-wrap">
@@ -83,13 +109,24 @@
                 <button class="copy-btn" data-target="city" title="Copy">📋</button>
             </div>
         </div>
-        <div class="field-group">
-            <label for="state">State</label>
-            <div class="field-value-wrap">
-                <span id="state" class="field-value">—</span>
-                <button class="copy-btn" data-target="state" title="Copy">📋</button>
+
+        <!-- State control lives with the field it drives (also feeds city/zip/phone area code). -->
+        <div class="field-group stacked">
+            <div class="field-row">
+                <label for="state">State</label>
+                <div class="field-value-wrap">
+                    <span id="state" class="field-value">—</span>
+                    <button class="copy-btn" data-target="state" title="Copy">📋</button>
+                </div>
+            </div>
+            <div class="field-control-row">
+                <span class="control-label">Select state (also sets city/zip/phone)</span>
+                <select id="stateSelect">
+                    <option value="">Random</option>
+                </select>
             </div>
         </div>
+
         <div class="field-group">
             <label for="zip">Zip</label>
             <div class="field-value-wrap">
@@ -97,6 +134,7 @@
                 <button class="copy-btn" data-target="zip" title="Copy">📋</button>
             </div>
         </div>
+
         <div class="field-group">
             <label for="email">Email</label>
             <div class="field-value-wrap">
@@ -104,6 +142,7 @@
                 <button class="copy-btn" data-target="email" title="Copy">📋</button>
             </div>
         </div>
+
         <div class="field-group">
             <label for="username">Username</label>
             <div class="field-value-wrap">
@@ -111,6 +150,7 @@
                 <button class="copy-btn" data-target="username" title="Copy">📋</button>
             </div>
         </div>
+
         <div class="field-group">
             <label for="password">Password</label>
             <div class="field-value-wrap">
@@ -119,31 +159,17 @@
             </div>
         </div>
 
-        <div class="field-group age-range-controls">
-                    <label for="stateSelect">State Selection</label>
-                    <select id="stateSelect">
-                        <option value="">Random</option>
-                    </select>
-                </div>
-        <div class="field-group age-range-controls">
-            <label>Age Range</label>
-            <div class="age-range-inputs">
-                <input type="number" id="minAge" value="18" min="0" max="120">
-                <span>to</span>
-                <input type="number" id="maxAge" value="65" min="0" max="120">
-            </div>
-        </div>
-        
-
         <button id="regenerateBtn" class="primary-btn">Generate</button>
     </section>
 </main>
+
 <footer class="site-footer">
     <p>
         Project Nebo v0.1.0-beta |
         Runs locally in your browser
     </p>
 </footer>
+
 <script src="js/theme.js"></script>
 <script src="js/personal.js"></script>
 <script src="js/clipboard.js"></script>
