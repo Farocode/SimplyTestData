@@ -106,12 +106,18 @@ function randomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+function daysInMonth(year, monthIndex) {
+    // monthIndex is 0-11; day 0 of the next month rolls back to the
+    // last day of this one, which correctly accounts for leap years.
+    return new Date(year, monthIndex + 1, 0).getDate();
+}
+
 function generateDOB(minAge, maxAge) {
     const today = new Date();
     const age = randomInt(minAge, maxAge);
     const birthYear = today.getFullYear() - age;
     const birthMonth = randomInt(0, 11);
-    const birthDay = randomInt(1, 28);
+    const birthDay = randomInt(1, daysInMonth(birthYear, birthMonth));
     const dob = new Date(birthYear, birthMonth, birthDay);
     return dob;
 }
