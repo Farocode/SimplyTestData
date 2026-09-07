@@ -4,7 +4,35 @@ const FIRST_NAMES = [
     "Kwame", "Sofia", "Arjun", "Ngozi", "Hiro",
     "Mateo", "Amara", "Dmitri", "Layla", "Noah",
     "Mei", "Omar", "Isabella", "Kenji", "Zara",
-    "Lucas", "Aaliyah", "Ravi", "Chidi", "Emma"
+    "Lucas", "Aaliyah", "Ravi", "Chidi", "Emma",
+    "James", "Mary", "Michael", "Patricia", "Robert",
+    "Jennifer", "John", "Linda", "David", "Elizabeth",
+    "William", "Barbara", "Richard", "Susan", "Joseph",
+    "Jessica", "Thomas", "Sarah", "Christopher", "Karen",
+    "Charles", "Lisa", "Daniel", "Nancy", "Matthew",
+    "Sandra", "Anthony", "Betty", "Mark", "Ashley",
+    "Donald", "Emily", "Steven", "Kimberly", "Andrew",
+    "Margaret", "Paul", "Donna", "Joshua", "Michelle",
+    "Kenneth", "Carol", "Kevin", "Amanda", "Brian",
+    "Melissa", "George", "Deborah", "Timothy", "Stephanie",
+    "Ronald", "Rebecca", "Jason", "Sharon", "Edward",
+    "Laura", "Jeffrey", "Cynthia", "Ryan", "Dorothy",
+    "Jacob", "Amy", "Gary", "Kathleen", "Nicholas",
+    "Angela", "Eric", "Shirley", "Jonathan", "Stephen",
+    "Brenda", "Larry", "Pamela", "Justin", "Nicole",
+    "Scott", "Anna", "Brandon", "Samantha", "Benjamin",
+    "Katherine", "Samuel", "Christine", "Gregory", "Debra",
+    "Alexander", "Rachel", "Frank", "Carolyn", "Patrick",
+    "Janet", "Raymond", "Maria", "Jack", "Heather",
+    "Dennis", "Diane", "Jerry", "Virginia", "Tyler",
+    "Julie", "Aaron", "Joyce", "Jose", "Victoria",
+    "Adam", "Olivia", "Nathan", "Kelly", "Aria",
+    "Santiago", "Camila", "Luis", "Juan", "Maya",
+    "Aarav", "Rohan", "Ananya", "Diya", "Vihaan",
+    "Neha", "Aditya", "Kavya", "Tariq", "Zubair",
+    "Zuri", "Jamal", "Nia", "Kwei", "Ying",
+    "Chen", "Ling", "Ming", "Xiu", "Bo",
+    "Yan",
 ];
 
 const LAST_NAMES = [
@@ -13,7 +41,26 @@ const LAST_NAMES = [
     "Kumar", "Diallo", "Andersson", "Santos", "Ivanov",
     "Chen", "Abara", "Muller", "Osei", "Novak",
     "Ferreira", "Choi", "Haddad", "Larsen", "Mendez",
-    "Wang", "Adeyemi", "Kovac", "Reyes", "Singh"
+    "Wang", "Adeyemi", "Kovac", "Reyes", "Singh",
+    "Smith", "Johnson", "Williams", "Brown", "Jones",
+    "Miller", "Davis", "Rodriguez", "Martinez", "Hernandez",
+    "Lopez", "Gonzalez", "Wilson", "Anderson", "Thomas",
+    "Taylor", "Moore", "Jackson", "Martin", "Lee",
+    "Perez", "Thompson", "White", "Harris", "Sanchez",
+    "Clark", "Ramirez", "Lewis", "Robinson", "Walker",
+    "Young", "Allen", "King", "Wright", "Scott",
+    "Torres", "Hill", "Flores", "Green", "Adams",
+    "Nelson", "Baker", "Hall", "Rivera", "Campbell",
+    "Mitchell", "Carter", "Roberts", "Gomez", "Phillips",
+    "Evans", "Turner", "Diaz", "Parker", "Cruz",
+    "Edwards", "Collins", "Stewart", "Morris", "Morales",
+    "Murphy", "Cook", "Rogers", "Gutierrez", "Ortiz",
+    "Morgan", "Cooper", "Peterson", "Bailey", "Reed",
+    "Kelly", "Howard", "Ramos", "Cox", "Ward",
+    "Richardson", "Watson", "Brooks", "Chavez", "Wood",
+    "James", "Bennett", "Mendoza", "Ruiz", "Hughes",
+    "Price", "Alvarez", "Castillo", "Sanders", "Tran",
+    "Shah", "Wong", "Yang",
 ];
 
 // Per-state name + one area code used for every phone number
@@ -4069,21 +4116,28 @@ function generateUsername(firstName, lastName) {
     return `${firstName.toLowerCase()}${lastName.toLowerCase()}${randomDigits}`;
 }
 
-function generatePassword() {
+function generatePassword(length, includeSymbols) {
     const uppercase = "ABCDEFGHJKLMNPQRSTUVWXYZ";
     const lowercase = "abcdefghijkmnpqrstuvwxyz";
     const numbers = "23456789";
     const symbols = "!@#$%^&*";
 
-    let password = [
-        randomFromList(uppercase.split("")),
-        randomFromList(lowercase.split("")),
-        randomFromList(numbers.split("")),
-        randomFromList(symbols.split(""))
-    ];
+    // Always guarantee one of each enabled character class, same as
+    // before — symbols just becomes optional based on the toggle.
+    const requiredPools = [uppercase, lowercase, numbers];
+    if (includeSymbols) {
+        requiredPools.push(symbols);
+    }
 
-    const allChars = uppercase + lowercase + numbers + symbols;
-    for (let i = 0; i < 8; i++) {
+    let password = requiredPools.map(
+        (pool) => randomFromList(pool.split(""))
+    );
+
+    // Never generate shorter than the guaranteed classes require,
+    // even if a caller passes a too-small length.
+    const safeLength = Math.max(length, requiredPools.length);
+    const allChars = requiredPools.join("");
+    for (let i = password.length; i < safeLength; i++) {
         password.push(randomFromList(allChars.split("")));
     }
 
@@ -4095,7 +4149,7 @@ function generatePassword() {
     return password.join("");
 }
 
-function generatePerson(minAge, maxAge, stateAbbr) {
+function generatePerson(minAge, maxAge, stateAbbr, passwordOptions) {
     const firstName = randomFromList(FIRST_NAMES);
     const lastName = randomFromList(LAST_NAMES);
     const fullName = `${firstName} ${lastName}`;
@@ -4107,7 +4161,7 @@ function generatePerson(minAge, maxAge, stateAbbr) {
     const address = generateAddress(stateAbbr);
     const email = generateEmail(firstName, lastName);
     const username = generateUsername(firstName, lastName);
-    const password = generatePassword();
+    const password = generatePassword(passwordOptions.length, passwordOptions.includeSymbols);
 
     return {
         firstName,
@@ -4162,6 +4216,19 @@ function getAgeRange() {
     return { min, max };
 }
 
+function getPasswordOptions() {
+    const lengthInput = document.getElementById("passwordLength");
+    const symbolsInput = document.getElementById("includeSymbols");
+
+    let length = parseInt(lengthInput.value, 10);
+    if (isNaN(length) || length < 8) length = 8;
+    if (length > 64) length = 64;
+
+    const includeSymbols = symbolsInput.checked;
+
+    return { length, includeSymbols };
+}
+
 function populateStateDropdown() {
     const select = document.getElementById("stateSelect");
     Object.keys(STATE_DATA).forEach((abbr) => {
@@ -4189,13 +4256,15 @@ function initializePersonalGenerator() {
     regenerateBtn.addEventListener("click", () => {
         const { min, max } = getAgeRange();
         const stateAbbr = resolveStateSelection(stateSelect.value);
-        const person = generatePerson(min, max, stateAbbr);
+        const passwordOptions = getPasswordOptions();
+        const person = generatePerson(min, max, stateAbbr, passwordOptions);
         renderPerson(person);
     });
 
     const { min, max } = getAgeRange();
     const stateAbbr = resolveStateSelection(stateSelect.value);
-    renderPerson(generatePerson(min, max, stateAbbr));
+    const passwordOptions = getPasswordOptions();
+    renderPerson(generatePerson(min, max, stateAbbr, passwordOptions));
 }
 
 document.addEventListener("DOMContentLoaded", () => {

@@ -151,11 +151,24 @@
             </div>
         </div>
 
-        <div class="field-group">
-            <label for="password">Password</label>
-            <div class="field-value-wrap">
-                <span id="password" class="field-value">—</span>
-                <button class="copy-btn" data-target="password" title="Copy">📋</button>
+        <!-- Password options live with the field they affect, same pattern as State/Age. -->
+        <div class="field-group stacked">
+            <div class="field-row">
+                <label for="password">Password</label>
+                <div class="field-value-wrap">
+                    <span id="password" class="field-value">—</span>
+                    <button class="copy-btn" data-target="password" title="Copy">📋</button>
+                </div>
+            </div>
+            <div class="field-control-row">
+                <span class="control-label">Length &amp; symbols</span>
+                <div class="password-options-inputs">
+                    <input type="number" id="passwordLength" value="12" min="8" max="64" title="Password length">
+                    <label class="symbol-toggle">
+                        <input type="checkbox" id="includeSymbols" checked>
+                        Symbols
+                    </label>
+                </div>
             </div>
         </div>
 
