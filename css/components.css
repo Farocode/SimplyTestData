@@ -582,3 +582,17 @@ button:not(:disabled):active {
 .qa-inline-field input[type="text"] {
     width: 110px;
 }
+
+/* Landing page only: header centered and capped to match the 900px
+   centered card grid below it, instead of the default left-aligned
+   full-width header the tool pages use (those stay left-aligned --
+   their content is already 900px-capped by .tool-page). */
+.site-header-centered {
+    max-width: 900px;
+    margin: 0 auto;
+    flex-direction: column;
+    text-align: center;
+}
+.site-header-centered .site-header-title {
+    justify-content: center;
+}
