@@ -85,10 +85,50 @@ button:hover {
     margin: 0 auto;
 }
 
+/* Below this width the panel stays the single centered column above —
+   effectively the "mobile" reading, whether that's an actual phone or
+   just a narrow/shrunk desktop window. Past it, it widens into a real
+   two-column layout so a full-size window doesn't waste its width on
+   a narrow strip of fields with empty space on both sides. */
+@media (min-width: 800px) {
+    .generator-panel {
+        max-width: 900px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        column-gap: 2.5rem;
+    }
+    /* Controls need the field they're paired with, and the button
+       needs the user's full attention — both span the whole width
+       rather than getting squeezed into one column. */
+    .generator-panel .field-group.stacked,
+    .generator-panel > .primary-btn {
+        grid-column: 1 / -1;
+    }
+    /* Each grid cell is wide enough that stretching label to the far
+       left and value to the far right leaves an odd stretch of empty
+       space between them. Clustering them together on the left reads
+       cleaner and matches how the single-column layout already reads. */
+    .generator-panel .field-group:not(.stacked),
+    .generator-panel .field-group.stacked .field-row {
+        justify-content: flex-start;
+        gap: 1.5rem;
+    }
+    /* .field-value-wrap grows to fill the row on mobile (so the copy
+       button pins to the card edge) — on desktop it should just sit
+       snugly after the label instead of stretching the rest of the
+       cell and re-creating the same gap from the other side. */
+    .generator-panel .field-group:not(.stacked) .field-value-wrap,
+    .generator-panel .field-group.stacked .field-row .field-value-wrap {
+        flex: 0 1 auto;
+    }
+}
+
 .field-group {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
+    gap: 0.4rem 0.75rem;
     padding: 0.75rem 0;
     border-bottom: 1px solid var(--border);
 }
@@ -96,11 +136,14 @@ button:hover {
     border-bottom: none;
 }
 .field-group label {
-    color: var(--text-secondary);
+    color: var(--text-label);
+    font-weight: 600;
     font-size: 0.9rem;
+    flex-shrink: 0;
 }
 .field-value {
     font-weight: 600;
+    overflow-wrap: anywhere;
 }
 
 .primary-btn {
@@ -125,14 +168,17 @@ button:hover {
 }
 .field-group.stacked .field-row {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
+    gap: 0.4rem 0.75rem;
 }
 .field-control-row {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.5rem 0.75rem;
     padding: 0.5rem 0.75rem;
     background: var(--background);
     border: 1px solid var(--border);
@@ -184,6 +230,9 @@ button:hover {
     display: flex;
     align-items: center;
     gap: 0.6rem;
+    min-width: 0;
+    flex: 1 1 auto;
+    justify-content: flex-end;
 }
 .copy-btn {
     background: var(--background);

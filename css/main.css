@@ -23,6 +23,22 @@ body {
     margin: auto;
     padding: 2rem;
 }
+
+/* Individual tool pages (personal.html and future tool pages) opt into
+   a narrower shared shell width via <body class="tool-page">, so the
+   back-nav bar, header, and main content all line up on the same left
+   and right edges instead of the header spanning full width while the
+   panel floats centered on its own. On narrow/shrunk windows this has
+   no effect (natural width is already under the cap), so the page
+   reads the same as mobile there — only wide windows get the wider,
+   more "desktop tool" treatment. */
+body.tool-page .subnav,
+body.tool-page .site-header,
+body.tool-page .container {
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+}
 .card-grid {
     display: grid;
     grid-template-columns:
