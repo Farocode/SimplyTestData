@@ -30,7 +30,7 @@
 - First Name and Last Name are now paired into one stacked field-group (field-row of two field-items), the same pattern as Full Name+SSN below them — the top of the page reads consistently with the grouped rows underneath it instead of two independent boxes next to a paired one.
 
 ## Next up
-- Build out Healthcare card (MBI, Medicare Part A/B dates, coverage info)
+- Healthcare card — DONE, see "Healthcare Generator" below
 - Build out Banking card
 - Build out QA Tools card (JSON/XML/SQL formatters)
 
@@ -40,6 +40,26 @@
   - Likely direction (not decided/built): give Street its own full-width row, same treatment as Email. That alone would orphan Phone into an empty half-row (the exact bug already fixed twice — Email, and the CSV export row) — so Phone would need the same full-width treatment too, not just Street alone. Tradeoff: costs one extra row of vertical height on desktop (Phone+Street go from one combined row to two full rows) in exchange for giving Street real room. Needs a decision before building, and the usual Safari check after.
 - **More street name combinations.** Current word banks: 12 adjectives × 10 nouns × 7 suffixes = 840 possible combinations (`STREET_ADJECTIVES`, `STREET_NOUNS`, `STREET_SUFFIXES` in personal.js), deliberately excluding "Main" and any other real/common street names to avoid accidentally generating a real address. User confirmed a modest expansion of the word banks would be welcome — no specific count requested yet, just logged as wanting more variety, with the same real-address-avoidance care as the existing lists.
 - **Condense First/Last/Full Name/SSN rows.** Spec written, not built: see `docs/identity-row-condense-spec.md`.
+
+## Healthcare Generator (healthcare.html) — DONE, built 2026-09-08
+
+Spec: `docs/healthcare-generator-spec.md`. First build of the second tool page, `js/healthcare.js`, wired up from the index.html card (was "Coming Soon").
+
+- **MBI** — CMS-format-correct 11-character Medicare Beneficiary Identifier (verified against the official CMS format PDF), displayed dashed like a real card (`1EG4-TE5-MK73`). Verified: 5,000 generated MBIs all match the exact per-position character-class regex.
+- **Enrollment Period → Part A/Part B Effective Date** — selector (IEP / GEP / SEP, or Random) drives both dates via the real medicare.gov coverage-start rules for each period. AEP and the Medicare Advantage OEP are plan-*switch* windows for existing enrollees, not initial Part A/B enrollment, so they're intentionally not part of this selector — logged below as a possible separate addition.
+- **Plan Type → Payer / Member ID / Group Number** — 4 plan types (Original Medicare only, Medicare Advantage, Medigap+Part D, Part D only). Original Medicare correctly gets no private carrier (Payer = "Medicare (Original)", Member ID = the MBI itself, Group Number = "N/A" — Medicare doesn't use group numbers). Any plan type with a private carrier draws from a curated list of ~24 real, currently-operating US health insurers/Medicare carriers, with a plausible (not carrier-specific) generic Member ID/Group Number format.
+- **Body Composition Range → Height / Weight / BMI** — "Standard" generates BMI 18.5-29.9; "Outside Standard Range" generates underweight (<18.5) or overweight/obese (≥30, with some extreme ≥40 outliers) for underwriting edge-case testing. Flagged clearly (in the spec and on the page's control label) as a general reference band, not a fixed regulatory or universal insurer cutoff.
+- **CSV export** — same "records to export" + Export CSV pattern as Personal Generator.
+- Every field group on this page is a full-width `field-group stacked` row from the start (no plain/paired-by-DOM-order groups) — deliberately sidesteps the empty-grid-cell bug class that hit Personal Generator twice.
+
+Verified: `node --check`, HTML div-balance + duplicate-id checks, and a headless Node smoke test — MBI format (5,000 samples, 0 failures), GEP/IEP/SEP effective-date rules, Original Medicare vs. private-carrier coverage logic (500 samples each, 0 mismatches), BMI range boundaries (20,000 samples, 0 landed in the wrong band after a rounding-boundary bug the smoke test itself caught and got fixed), and CSV structure/escaping.
+
+**Not yet done: a visual check in Safari** — same standing limitation as the Personal Generator style pass; this session still can't get a live render of a page from here.
+
+### Logged for later, not built
+- Delayed Part B effective date via employer-coverage SEP (separate from Part A's date).
+- AEP / Medicare Advantage OEP as plan-*switch* dates, distinct from initial Part A/B enrollment.
+- Tying this page's generated record to Personal Generator's (shared identity across tool pages) — each tool page is currently independent by design.
 
 ## Ideas parked for later
 - Stylish global nav to switch between any tool page from any other tool page (not just back-to-home). Revisit once there are 2-3 tool pages built, so the pattern reflects real navigation needs instead of a guess.

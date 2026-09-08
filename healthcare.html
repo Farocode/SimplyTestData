@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthcare Generator | Project Nebo</title>
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+<body class="tool-page">
+
+<div class="subnav">
+    <a href="index.html" class="back-link">&larr; Project Nebo</a>
+</div>
+
+<header class="site-header">
+    <div>
+        <h1>Healthcare Generator</h1>
+        <p>Medicare enrollment, coverage, and member test data.</p>
+    </div>
+    <button id="themeToggle">
+        🌙
+    </button>
+</header>
+
+<main class="container">
+    <section class="generator-panel">
+
+        <!-- MBI gets its own full-width row (same pattern as Email in
+             Personal) rather than being paired with anything by DOM
+             order — every group on this page is full-width for that
+             reason, avoiding the empty-grid-cell bug that hit Personal
+             twice (Full Name, then Email/the CSV export row). -->
+        <div class="field-group stacked">
+            <div class="field-row">
+                <label for="mbi">MBI</label>
+                <div class="field-value-wrap">
+                    <span id="mbi" class="field-value">—</span>
+                    <button class="copy-btn" data-target="mbi" title="Copy">📋</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enrollment Period leads (same pattern as Age Range -> DOB/Age
+             and State -> City/State/Zip in Personal): the control that
+             drives Part A/B effective dates comes before them. -->
+        <div class="field-group stacked">
+            <div class="field-control-row">
+                <span class="control-label">Enrollment Period (drives Part A/B dates)</span>
+                <select id="enrollmentSelect">
+                    <option value="">Random</option>
+                    <option value="IEP">Initial Enrollment Period (IEP)</option>
+                    <option value="GEP">General Enrollment Period (GEP)</option>
+                    <option value="SEP">Special Enrollment Period (SEP)</option>
+                </select>
+            </div>
+            <div class="field-row">
+                <div class="field-item">
+                    <label for="enrollmentPeriod">Enrollment Period</label>
+                    <div class="field-value-wrap">
+                        <span id="enrollmentPeriod" class="field-value">—</span>
+                        <button class="copy-btn" data-target="enrollmentPeriod" title="Copy">📋</button>
+                    </div>
+                </div>
+                <div class="field-item">
+                    <label for="partAEffective">Part A Effective</label>
+                    <div class="field-value-wrap">
+                        <span id="partAEffective" class="field-value">—</span>
+                        <button class="copy-btn" data-target="partAEffective" title="Copy">📋</button>
+                    </div>
+                </div>
+                <div class="field-item">
+                    <label for="partBEffective">Part B Effective</label>
+                    <div class="field-value-wrap">
+                        <span id="partBEffective" class="field-value">—</span>
+                        <button class="copy-btn" data-target="partBEffective" title="Copy">📋</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Plan Type leads Payer/Member ID/Group Number the same way. -->
+        <div class="field-group stacked">
+            <div class="field-control-row">
+                <span class="control-label">Plan Type (drives Payer/Member ID/Group Number)</span>
+                <select id="planTypeSelect">
+                    <option value="">Random</option>
+                    <option value="Original Medicare (Parts A & B only)">Original Medicare (Parts A &amp; B only)</option>
+                    <option value="Medicare Advantage (Part C)">Medicare Advantage (Part C)</option>
+                    <option value="Original Medicare + Medigap + Part D">Original Medicare + Medigap + Part D</option>
+                    <option value="Original Medicare + Part D only">Original Medicare + Part D only</option>
+                </select>
+            </div>
+            <div class="field-row">
+                <div class="field-item">
+                    <label for="planType">Plan Type</label>
+                    <div class="field-value-wrap">
+                        <span id="planType" class="field-value">—</span>
+                        <button class="copy-btn" data-target="planType" title="Copy">📋</button>
+                    </div>
+                </div>
+                <div class="field-item">
+                    <label for="payer">Payer</label>
+                    <div class="field-value-wrap">
+                        <span id="payer" class="field-value">—</span>
+                        <button class="copy-btn" data-target="payer" title="Copy">📋</button>
+                    </div>
+                </div>
+                <div class="field-item">
+                    <label for="memberId">Member ID</label>
+                    <div class="field-value-wrap">
+                        <span id="memberId" class="field-value">—</span>
+                        <button class="copy-btn" data-target="memberId" title="Copy">📋</button>
+                    </div>
+                </div>
+                <div class="field-item">
+                    <label for="groupNumber">Group Number</label>
+                    <div class="field-value-wrap">
+                        <span id="groupNumber" class="field-value">—</span>
+                        <button class="copy-btn" data-target="groupNumber" title="Copy">📋</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Body Composition Range leads Height/Weight/BMI. "Standard" is
+             a general reference band (18.5-29.9), not a fixed regulatory
+             or universal insurer cutoff -- see docs/healthcare-generator-spec.md. -->
+        <div class="field-group stacked">
+            <div class="field-control-row">
+                <span class="control-label">Body Composition Range (drives Height/Weight/BMI)</span>
+                <select id="bodyRangeSelect">
+                    <option value="">Random</option>
+                    <option value="standard">Standard Range</option>
+                    <option value="outside">Outside Standard Range</option>
+                </select>
+            </div>
+            <div class="field-row">
+                <div class="field-item">
+                    <label for="height">Height</label>
+                    <div class="field-value-wrap">
+                        <span id="height" class="field-value">—</span>
+                        <button class="copy-btn" data-target="height" title="Copy">📋</button>
+                    </div>
+                </div>
+                <div class="field-item">
+                    <label for="weight">Weight</label>
+                    <div class="field-value-wrap">
+                        <span id="weight" class="field-value">—</span>
+                        <button class="copy-btn" data-target="weight" title="Copy">📋</button>
+                    </div>
+                </div>
+                <div class="field-item">
+                    <label for="bmi">BMI</label>
+                    <div class="field-value-wrap">
+                        <span id="bmi" class="field-value">—</span>
+                        <button class="copy-btn" data-target="bmi" title="Copy">📋</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button id="regenerateBtn" class="primary-btn">Generate</button>
+
+        <div class="export-row">
+            <span class="control-label">Records to export</span>
+            <div class="export-inputs">
+                <input type="number" id="exportCount" value="1" min="1" max="500" title="Number of records to export">
+                <button id="exportCsvBtn">Export CSV</button>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer class="site-footer">
+    <p>
+        Project Nebo v0.1.0-beta |
+        Runs locally in your browser
+    </p>
+</footer>
+
+<script src="js/theme.js"></script>
+<script src="js/healthcare.js"></script>
+<script src="js/clipboard.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        initializeTheme();
+    });
+</script>
+</body>
+</html>
