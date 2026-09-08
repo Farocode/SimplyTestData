@@ -18,6 +18,10 @@
 - DONE — Username + Password grouped into one row, same pattern as DOB/Age and City/State/Zip.
 - DONE — `.field-control-row` (Password's "Length & symbols", State's "Select state") now shrinks to its content width instead of stretching the full row — was noticeably oversized for what it holds.
 - OPEN — User isn't sure yet whether the State control's position (currently directly under the City/State/Zip row) is right, wants to reconsider later. No change made.
+
+## Investigated: "City/State/Zip randomly spreads wider on Generate"
+- Not actually a Generate bug — regenerating only sets text content (renderPerson), no JS touches layout or styles. Confirmed via the two screenshots' own file dimensions: they were literally different browser window sizes (1806x2438 vs 1924x2328), not the same window before/after a click.
+- The real, worth-fixing issue underneath: `.field-item` (used by every grouped row — DOB/Age/AgeRange, City/State/Zip, Full Name/SSN, Username/Password) had `flex-grow: 1`, so items stretched to fill whatever width was available in the row — meaning the same short values (e.g. "KS", "05489") could look tightly clustered or spread far apart purely based on window width, with nothing else changing. FIXED — flex-grow removed so items sit at their natural width and cluster together regardless of window size, consistent with how single-value rows already behave.
 - DONE — SSN moved off its own row onto Full Name's row (right side) — not a data relationship, just two short values sharing space, same idea as elsewhere.
 - DONE — Age Range control reordered to lead the DOB/Age row (was DOB, Age, Age Range → now Age Range, DOB, Age) so it reads as the control that produces the two fields after it.
 - DONE — Found and fixed the actual cause of Full Name wrapping to a second line despite looking like it had room: the Full Name+SSN row wasn't spanning the full panel width on desktop — it was confined to a single ~400px grid cell (only groups with a control-row got the full-width span before), so it never actually got the space next to it that just looked empty on the page. Now spans full width like the other paired rows.

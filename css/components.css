@@ -184,7 +184,7 @@ button:hover {
     display: flex;
     flex-direction: column;
     gap: 0.35rem;
-    flex: 1 1 100px;
+    flex: 0 1 auto;
     min-width: 90px;
 }
 .field-item .field-value-wrap {
