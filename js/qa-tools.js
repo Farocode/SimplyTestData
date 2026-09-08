@@ -14,16 +14,33 @@
    so it stays unit-testable headlessly (see the smoke tests run
    against this file during development). */
 
-function cleanWhitespace(text, removeBlankLines) {
-    const lines = text
+function cleanWhitespace(text, opts) {
+    const { removeBlankLines, dedupeLines, stripSpecialChars } = opts || {};
+
+    let lines = text
         .split("\n")
         .map((line) => line.trim().replace(/[ \t]+/g, " "));
 
-    const filtered = removeBlankLines
-        ? lines.filter((line) => line.length > 0)
-        : lines;
+    if (stripSpecialChars) {
+        // Keeps letters, numbers, common punctuation, and spaces --
+        // strips anything else (control chars, symbols, emoji, etc.).
+        lines = lines.map((line) => line.replace(/[^A-Za-z0-9 .,;:'"!?()\-]/g, ""));
+    }
 
-    return filtered.join("\n");
+    if (removeBlankLines) {
+        lines = lines.filter((line) => line.length > 0);
+    }
+
+    if (dedupeLines) {
+        const seen = new Set();
+        lines = lines.filter((line) => {
+            if (seen.has(line)) return false;
+            seen.add(line);
+            return true;
+        });
+    }
+
+    return lines.join("\n");
 }
 
 /* splitWords(): tokenizes text for the "programmatic" casing
@@ -303,6 +320,77 @@ function rgbToHsl({ r, g, b }) {
     };
 }
 
+/* parseDelimited()/escapeDelimitedField(): a small RFC4180-style
+   parser/writer generalized to any single-character delimiter, not
+   just comma -- handles quoted fields (so a delimiter or newline
+   inside quotes doesn't split the field) and doubled-quote escaping.
+   Zero dependency; this is the same algorithm any CSV library
+   implements, just not pulled in as one. */
+function parseDelimited(text, delimiter) {
+    const rows = [];
+    let row = [];
+    let field = "";
+    let inQuotes = false;
+    const normalized = text.replace(/\r\n/g, "\n");
+
+    for (let i = 0; i < normalized.length; i++) {
+        const c = normalized[i];
+        if (inQuotes) {
+            if (c === '"') {
+                if (normalized[i + 1] === '"') {
+                    field += '"';
+                    i++;
+                } else {
+                    inQuotes = false;
+                }
+            } else {
+                field += c;
+            }
+        } else if (c === '"') {
+            inQuotes = true;
+        } else if (c === delimiter) {
+            row.push(field);
+            field = "";
+        } else if (c === "\n") {
+            row.push(field);
+            field = "";
+            rows.push(row);
+            row = [];
+        } else {
+            field += c;
+        }
+    }
+
+    if (field.length > 0 || row.length > 0) {
+        row.push(field);
+        rows.push(row);
+    }
+
+    return rows;
+}
+
+function escapeDelimitedField(field, delimiter) {
+    if (field.includes(delimiter) || field.includes('"') || field.includes("\n") || field.includes("\r")) {
+        return '"' + field.replace(/"/g, '""') + '"';
+    }
+    return field;
+}
+
+function resolveDelimiterValue(selectValue, customValue) {
+    if (selectValue !== "custom") return selectValue;
+    if (!customValue) return null;
+    // Common escape shorthands so a typed "\t" works as a real tab.
+    return customValue.replace(/\\t/g, "\t").replace(/\\n/g, "\n");
+}
+
+function convertDelimited(text, inputDelimiter, outputDelimiter) {
+    const rows = parseDelimited(text, inputDelimiter);
+    const output = rows
+        .map((row) => row.map((field) => escapeDelimitedField(field, outputDelimiter)).join(outputDelimiter))
+        .join("\n");
+    return { output, rowCount: rows.length };
+}
+
 /* ----------------------- Tool config ---------------------------
    One entry per tool in the select. `needsInput: false` hides the
    shared textarea (only UUID has nothing to read). `options` render
@@ -317,19 +405,30 @@ function rgbToHsl({ r, g, b }) {
 
 const TOOLS = {
     whitespace: {
-        desc: "Trims leading/trailing whitespace on each line and collapses repeated internal spaces.",
+        desc: "Trims leading/trailing whitespace on each line and collapses repeated internal spaces. The toggles below cover the other common cleanup asks: dropping duplicate lines and stripping anything outside common letters/numbers/punctuation.",
         placeholder: "Paste text here...",
-        options: [{ id: "wsRemoveBlankLines", label: "Remove blank lines" }],
+        sample: "  Hello    world!  \n\n\n  This   line has  extra   spaces.  \n\nDuplicate line\nDuplicate line\nWeird chars: cafe #!! ***",
+        options: [
+            { id: "wsRemoveBlankLines", label: "Remove blank lines" },
+            { id: "wsDedupeLines", label: "Remove duplicate lines" },
+            { id: "wsStripSpecialChars", label: "Strip special characters" },
+        ],
         actions: [
             {
                 label: "Clean",
-                run: (input, opts) => cleanWhitespace(input, Boolean(opts.wsRemoveBlankLines)),
+                run: (input, opts) =>
+                    cleanWhitespace(input, {
+                        removeBlankLines: Boolean(opts.wsRemoveBlankLines),
+                        dedupeLines: Boolean(opts.wsDedupeLines),
+                        stripSpecialChars: Boolean(opts.wsStripSpecialChars),
+                    }),
             },
         ],
     },
     case: {
         desc: "Convert text between common casing styles.",
         placeholder: "Paste text here...",
+        sample: "hello_world example TextToConvert",
         actions: [
             { label: "UPPERCASE", run: (input) => convertCase(input, "upper") },
             { label: "lowercase", run: (input) => convertCase(input, "lower") },
@@ -345,6 +444,7 @@ const TOOLS = {
     readability: {
         desc: "A rough, Hemingway-style pass: flags long/complex sentences, likely passive voice, adverb-heavy phrasing, and estimates a Flesch-Kincaid grade level from a simple syllable heuristic -- an approximation, not a claim to match any commercial tool's exact scoring. Spelling is flagged by your browser's own built-in spell-checker (underlined in the box) rather than a bundled dictionary.",
         placeholder: "Paste a paragraph or two here...",
+        sample: "The meeting was attended by all of the stakeholders and it was decided by the committee that the project would be moved forward with, which was viewed favorably by everyone who was involved in a way that was surprisingly complicated to explain to the newer members of the team.",
         inputSpellcheck: true,
         actions: [
             { label: "Analyze", run: (input) => formatReadabilityResult(analyzeReadability(input)) },
@@ -353,6 +453,7 @@ const TOOLS = {
     json: {
         desc: "Validate, pretty-print, or minify JSON using the browser's native JSON parser.",
         placeholder: "Paste JSON here...",
+        sample: "{\"name\":\"Jane Doe\",\"active\":true,\"roles\":[\"admin\",\"tester\"],\"score\":98.6}",
         actions: [
             {
                 label: "Validate",
@@ -400,6 +501,7 @@ const TOOLS = {
     base64: {
         desc: "UTF-8 safe Base64 encode/decode.",
         placeholder: "Text or Base64 here...",
+        sample: "Simply Test Data",
         actions: [
             {
                 label: "Encode",
@@ -426,6 +528,7 @@ const TOOLS = {
     url: {
         desc: "Percent-encode or decode a string for safe use in a URL.",
         placeholder: "Text or encoded URL component here...",
+        sample: "https://example.com/search?q=simply test data&sort=asc",
         actions: [
             { label: "Encode", run: (input) => encodeURIComponent(input) },
             {
@@ -446,6 +549,7 @@ const TOOLS = {
     html: {
         desc: "Encode/decode the common named entities (&amp;, &lt;, &gt;, quotes) plus numeric entities.",
         placeholder: "Text or HTML-escaped text here...",
+        sample: "<div class=\"example\">Tom and Jerry are having a \"great\" day</div>",
         actions: [
             { label: "Encode", run: (input) => encodeHtmlEntities(input) },
             { label: "Decode", run: (input) => decodeHtmlEntities(input) },
@@ -459,6 +563,7 @@ const TOOLS = {
     hash: {
         desc: "SHA-1/256/384/512 via the browser's native Web Crypto API. SHA-1 is included but flagged legacy -- don't use it anywhere security matters. MD5 isn't offered; it's intentionally left out of Web Crypto and not worth hand-rolling here.",
         placeholder: "Text to hash...",
+        sample: "The quick brown fox jumps over the lazy dog",
         actions: [
             { label: "SHA-1", run: (input) => hashText(input, "SHA-1") },
             { label: "SHA-256", run: (input) => hashText(input, "SHA-256") },
@@ -469,6 +574,7 @@ const TOOLS = {
     timestamp: {
         desc: "Convert between a Unix timestamp (seconds) and a human-readable date. Pick a direction below -- for \"Date → Unix\", type a date your browser can parse, e.g. 2026-09-08T14:30 or 2026-09-08 14:30:00.",
         placeholder: "e.g. 1735689600  or  2026-09-08T14:30",
+        sample: "1735689600",
         actions: [
             {
                 label: "Unix → Date",
@@ -507,6 +613,7 @@ const TOOLS = {
     color: {
         desc: "Enter a hex color to get its RGB and HSL equivalents.",
         placeholder: "#38bdf8 or #fff",
+        sample: "#38bdf8",
         actions: [
             {
                 label: "Convert",
@@ -521,6 +628,68 @@ const TOOLS = {
                         status: "",
                         statusClass: "",
                     };
+                },
+            },
+        ],
+    },
+    delimiter: {
+        desc: "Convert delimited text (CSV, TSV, pipe-separated, or a custom character) from one delimiter to another. Handles quoted fields, so a delimiter or newline inside quotes doesn't split the field.",
+        placeholder: 'name,role,notes\n"Doe, Jane",QA Lead,"Uses a comma in her title -- watch for that"\nJohn Smith,Engineer,Works remote',
+        sample: 'name,role,notes\n"Doe, Jane",QA Lead,"Uses a comma in her title -- watch for that"\nJohn Smith,Engineer,Works remote',
+        options: [
+            {
+                id: "delimInput",
+                type: "select",
+                label: "Input delimiter",
+                default: ",",
+                choices: [
+                    { value: ",", label: "Comma" },
+                    { value: "\t", label: "Tab" },
+                    { value: "|", label: "Pipe" },
+                    { value: ";", label: "Semicolon" },
+                    { value: "custom", label: "Custom" },
+                ],
+            },
+            {
+                id: "delimInputCustom",
+                type: "text",
+                label: "Custom input delimiter",
+                placeholder: "e.g. ~ or \\t",
+            },
+            {
+                id: "delimOutput",
+                type: "select",
+                label: "Output delimiter",
+                default: "\t",
+                choices: [
+                    { value: ",", label: "Comma" },
+                    { value: "\t", label: "Tab" },
+                    { value: "|", label: "Pipe" },
+                    { value: ";", label: "Semicolon" },
+                    { value: "custom", label: "Custom" },
+                ],
+            },
+            {
+                id: "delimOutputCustom",
+                type: "text",
+                label: "Custom output delimiter",
+                placeholder: "e.g. ~ or \\t",
+            },
+        ],
+        actions: [
+            {
+                label: "Convert",
+                run: (input, opts) => {
+                    const inDelim = resolveDelimiterValue(opts.delimInput, opts.delimInputCustom);
+                    const outDelim = resolveDelimiterValue(opts.delimOutput, opts.delimOutputCustom);
+                    if (!inDelim) {
+                        return { status: "Pick an input delimiter, or enter a custom one.", statusClass: "invalid" };
+                    }
+                    if (!outDelim) {
+                        return { status: "Pick an output delimiter, or enter a custom one.", statusClass: "invalid" };
+                    }
+                    const { output, rowCount } = convertDelimited(input, inDelim, outDelim);
+                    return { output, status: `Converted ${rowCount} row(s).`, statusClass: "valid" };
                 },
             },
         ],
@@ -543,6 +712,8 @@ async function hashText(input, algorithm) {
 
 /* ----------------------- DOM wiring ----------------------------- */
 
+const QA_STORAGE_KEY = "std-qa-tools-state";
+
 function initializeQaTools() {
     const toolSelect = document.getElementById("toolSelect");
     const toolDesc = document.getElementById("toolDesc");
@@ -552,11 +723,46 @@ function initializeQaTools() {
     const qaOutput = document.getElementById("qaOutput");
     const qaStatus = document.getElementById("qaStatus");
     const clearAllBtn = document.getElementById("clearAllBtn");
+    const loadSampleBtn = document.getElementById("loadSampleBtn");
+
+    let saveTimer = null;
 
     function setStatus(message, statusClass) {
         qaStatus.textContent = message || "";
         qaStatus.classList.remove("valid", "invalid");
         if (statusClass) qaStatus.classList.add(statusClass);
+    }
+
+    // Best-effort only -- private browsing, a full quota, or a blocked
+    // storage API should never break the tool itself, just skip the
+    // "remember this across a refresh" convenience.
+    function saveState() {
+        try {
+            localStorage.setItem(
+                QA_STORAGE_KEY,
+                JSON.stringify({
+                    tool: toolSelect.value,
+                    input: qaInput.hidden ? "" : qaInput.value,
+                    output: qaOutput.value,
+                })
+            );
+        } catch (err) {
+            /* ignore */
+        }
+    }
+
+    function scheduleSave() {
+        if (saveTimer) clearTimeout(saveTimer);
+        saveTimer = setTimeout(saveState, 300);
+    }
+
+    function loadPersistedState() {
+        try {
+            const raw = localStorage.getItem(QA_STORAGE_KEY);
+            return raw ? JSON.parse(raw) : null;
+        } catch (err) {
+            return null;
+        }
     }
 
     function renderTool(key) {
@@ -567,18 +773,49 @@ function initializeQaTools() {
         qaInput.hidden = tool.needsInput === false;
         qaInput.spellcheck = Boolean(tool.inputSpellcheck);
 
+        loadSampleBtn.hidden = !tool.sample || tool.needsInput === false;
+
         qaOptions.innerHTML = "";
         if (tool.options && tool.options.length > 0) {
             qaOptions.hidden = false;
             tool.options.forEach((opt) => {
-                const label = document.createElement("label");
-                label.className = "symbol-toggle";
-                const checkbox = document.createElement("input");
-                checkbox.type = "checkbox";
-                checkbox.id = opt.id;
-                label.appendChild(checkbox);
-                label.appendChild(document.createTextNode(opt.label));
-                qaOptions.appendChild(label);
+                const type = opt.type || "checkbox";
+
+                if (type === "checkbox") {
+                    const label = document.createElement("label");
+                    label.className = "symbol-toggle";
+                    const checkbox = document.createElement("input");
+                    checkbox.type = "checkbox";
+                    checkbox.id = opt.id;
+                    label.appendChild(checkbox);
+                    label.appendChild(document.createTextNode(opt.label));
+                    qaOptions.appendChild(label);
+                } else if (type === "select") {
+                    const wrapper = document.createElement("label");
+                    wrapper.className = "qa-inline-field";
+                    wrapper.appendChild(document.createTextNode(opt.label));
+                    const select = document.createElement("select");
+                    select.id = opt.id;
+                    (opt.choices || []).forEach((choice) => {
+                        const optionEl = document.createElement("option");
+                        optionEl.value = choice.value;
+                        optionEl.textContent = choice.label;
+                        select.appendChild(optionEl);
+                    });
+                    if (opt.default !== undefined) select.value = opt.default;
+                    wrapper.appendChild(select);
+                    qaOptions.appendChild(wrapper);
+                } else if (type === "text") {
+                    const wrapper = document.createElement("label");
+                    wrapper.className = "qa-inline-field";
+                    wrapper.appendChild(document.createTextNode(opt.label));
+                    const input = document.createElement("input");
+                    input.type = "text";
+                    input.id = opt.id;
+                    if (opt.placeholder) input.placeholder = opt.placeholder;
+                    wrapper.appendChild(input);
+                    qaOptions.appendChild(wrapper);
+                }
             });
         } else {
             qaOptions.hidden = true;
@@ -600,7 +837,11 @@ function initializeQaTools() {
         const values = {};
         (tool.options || []).forEach((opt) => {
             const el = document.getElementById(opt.id);
-            values[opt.id] = el ? el.checked : false;
+            if (!el) {
+                values[opt.id] = opt.type === "checkbox" || !opt.type ? false : "";
+                return;
+            }
+            values[opt.id] = opt.type === "checkbox" || !opt.type ? el.checked : el.value;
         });
         return values;
     }
@@ -617,10 +858,12 @@ function initializeQaTools() {
             qaOutput.value = result.output;
         }
         setStatus(result.status, result.statusClass);
+        saveState();
     }
 
     toolSelect.addEventListener("change", () => {
         renderTool(toolSelect.value);
+        saveState();
     });
 
     clearAllBtn.addEventListener("click", () => {
@@ -630,9 +873,33 @@ function initializeQaTools() {
         qaOptions.querySelectorAll("input[type=checkbox]").forEach((cb) => {
             cb.checked = false;
         });
+        qaOptions.querySelectorAll("input[type=text]").forEach((el) => {
+            el.value = "";
+        });
+        saveState();
     });
 
+    loadSampleBtn.addEventListener("click", () => {
+        const tool = TOOLS[toolSelect.value];
+        if (tool.sample) {
+            qaInput.value = tool.sample;
+            scheduleSave();
+        }
+    });
+
+    qaInput.addEventListener("input", scheduleSave);
+
+    const restored = loadPersistedState();
+    if (restored && TOOLS[restored.tool]) {
+        toolSelect.value = restored.tool;
+    }
+
     renderTool(toolSelect.value);
+
+    if (restored) {
+        if (typeof restored.input === "string") qaInput.value = restored.input;
+        if (typeof restored.output === "string") qaOutput.value = restored.output;
+    }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -657,6 +924,10 @@ if (typeof module !== "undefined") {
         bufferToHex,
         hexToRgb,
         rgbToHsl,
+        parseDelimited,
+        escapeDelimitedField,
+        resolveDelimiterValue,
+        convertDelimited,
         TOOLS,
     };
 }

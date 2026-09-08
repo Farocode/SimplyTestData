@@ -119,6 +119,31 @@ Verified: div open/close tag-balance check across all 5 HTML pages, CSS brace-ba
 ## Ideas parked for later
 - Stylish global nav to switch between any tool page from any other tool page (not just back-to-home). Revisit once there are 2-3 tool pages built, so the pattern reflects real navigation needs instead of a guess.
 
+## External feedback review — 2026-09-08
+Feedback batch received (recruiter/reviewer-style pass). Triaged against current state:
+
+**Already built, no action needed:**
+- Copy-to-clipboard with confirmation — every value/output across all four pages has a copy button that flips to a checkmark on click.
+- Dark/light theme toggle — framework-free CSS-variable toggle, already in place. Feedback on this one was about placement, not missing functionality — toggle button is moving inline with the header title rather than sitting off in its own corner.
+- Bulk clear — QA Tools already has "Clear All"; the three generator pages (Personal/Healthcare/Banking) don't have free-text input to clear, they regenerate on click, so a clear button doesn't apply there the same way.
+
+**Small, doing regardless (low risk, no real decision needed):**
+- Expanding Whitespace Cleanup's sanitization options: dedupe repeated lines, strip special characters, alongside the existing trim/collapse/remove-blank-lines.
+- Theme toggle repositioned inline with the header title instead of its own corner slot.
+
+**Bigger, asked before building, all four approved and built 2026-09-08:**
+- **Unified navigation header** — the same idea already logged above as "revisit once 2-3 tool pages exist," now built. A pill-style nav row (Home / Personal / Healthcare / Banking / QA Tools) replaces the old "&larr; Simply Test Data" back-link on all four tool pages, active page highlighted, matching the QA Tools tab-selector look.
+- **Delimiter Converter tool** — new QA Tools utility (Format & Validate group). Converts delimited text between comma/tab/pipe/semicolon/custom, with a small RFC4180-style parser/writer (quoted fields, embedded delimiters/newlines/escaped quotes all handled correctly) — zero dependency, same algorithm any CSV library implements, just not pulled in as one.
+- **Load Sample Data** — every QA Tools utility that takes input now has a sample string and a "Load Sample" button next to Clear All, so a first-time visitor can see each tool work without typing anything. (UUID is the one tool that skips it — nothing to sample.)
+- **LocalStorage persistence for QA Tools** — input, output, and the selected tool now survive an accidental refresh or tab switch (`std-qa-tools-state` in localStorage, debounced on typing, best-effort — wrapped in try/catch so private browsing or a blocked storage API just silently skips the convenience rather than breaking the tool). Scoped to QA Tools only, per the earlier open question — the three generator pages regenerate cheaply on click so didn't get this.
+
+Also built alongside these, small quick wins from the same feedback pass:
+- Whitespace Cleanup gained two more toggles: remove duplicate lines, strip special characters (keeps common punctuation, drops symbols/control characters/emoji).
+- Theme toggle moved inline next to the page title instead of pinned to the header's far edge.
+
+Verified: `node --check`, HTML id-uniqueness + div-balance checks across all five pages, and headless tests for the new pure functions — CSV-style quoted-field parsing (embedded delimiter, embedded escaped quote), a parse→escape→reparse round-trip stability check, custom-delimiter resolution (including the `\t` shorthand), the delimiter tool's actual `run()` end to end, and every tool's sample text exercised through its own actions without throwing. Standing Safari visual-check gap — worth an extra look here since the delimiter tool's select/text option controls and the sample/localStorage interplay are new UI shapes.
+
+
 ## Landing page (index.html) redesign
 Full spec: `docs/index-redesign-spec.md`.
 

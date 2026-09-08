@@ -516,3 +516,69 @@ button:not(:disabled):active {
     transform: none !important;
     box-shadow: none !important;
 }
+
+/* --- Unified tool navigation ----------------------------------------
+   A lightweight nav row across the four tool pages so you can jump
+   straight to any of them instead of always going back through the
+   landing page. Reuses the .subnav padding container; the active
+   page's link gets the same filled-pill treatment as the QA Tools
+   tab selector for a consistent "you are here" signal. */
+.tool-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+.tool-nav-link {
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.5rem 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+}
+.tool-nav-link:hover {
+    border-color: var(--accent);
+    color: var(--text-primary);
+}
+.tool-nav-link.active {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: var(--background);
+}
+
+/* Theme toggle now sits inline with the page title instead of pinned
+   to the far edge of the header row. */
+.site-header-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+.theme-toggle-inline {
+    font-size: 1.1rem;
+    padding: 0.3rem 0.55rem;
+    line-height: 1;
+}
+
+/* QA Tools option controls beyond plain checkboxes (select/text, used
+   by the Delimiter Converter). Sits in the same .qa-option-row as the
+   checkbox toggles, just a different shape. */
+.qa-inline-field {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+.qa-inline-field select,
+.qa-inline-field input[type="text"] {
+    padding: 0.35rem 0.5rem;
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: 0.4rem;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+}
+.qa-inline-field input[type="text"] {
+    width: 110px;
+}
