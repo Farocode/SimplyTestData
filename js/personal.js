@@ -1,10 +1,20 @@
-const FIRST_NAMES = [
+// Split into a balanced pool (the original hand-curated 30, evenly
+// spread across regions) and an extra pool (the larger CSV-sourced
+// batch merged in later, which skews toward common Western/Hispanic
+// names since that's what the source file was dominated by).
+// pickName() below draws from each pool with equal probability
+// regardless of pool size, so the skewed extra pool adds variety
+// without drowning out the balanced one.
+const FIRST_NAMES_BALANCED = [
     "Wei", "Fatima", "Carlos", "Aisha", "Liam",
     "Yuki", "Diego", "Priya", "Malik", "Elena",
     "Kwame", "Sofia", "Arjun", "Ngozi", "Hiro",
     "Mateo", "Amara", "Dmitri", "Layla", "Noah",
     "Mei", "Omar", "Isabella", "Kenji", "Zara",
     "Lucas", "Aaliyah", "Ravi", "Chidi", "Emma",
+];
+
+const FIRST_NAMES_EXTRA = [
     "James", "Mary", "Michael", "Patricia", "Robert",
     "Jennifer", "John", "Linda", "David", "Elizabeth",
     "William", "Barbara", "Richard", "Susan", "Joseph",
@@ -35,13 +45,16 @@ const FIRST_NAMES = [
     "Yan",
 ];
 
-const LAST_NAMES = [
+const LAST_NAMES_BALANCED = [
     "Nguyen", "Garcia", "Kim", "Patel", "Silva",
     "Okafor", "Kowalski", "Hassan", "Yamamoto", "Rossi",
     "Kumar", "Diallo", "Andersson", "Santos", "Ivanov",
     "Chen", "Abara", "Muller", "Osei", "Novak",
     "Ferreira", "Choi", "Haddad", "Larsen", "Mendez",
     "Wang", "Adeyemi", "Kovac", "Reyes", "Singh",
+];
+
+const LAST_NAMES_EXTRA = [
     "Smith", "Johnson", "Williams", "Brown", "Jones",
     "Miller", "Davis", "Rodriguez", "Martinez", "Hernandez",
     "Lopez", "Gonzalez", "Wilson", "Anderson", "Thomas",
@@ -62,6 +75,12 @@ const LAST_NAMES = [
     "Price", "Alvarez", "Castillo", "Sanders", "Tran",
     "Shah", "Wong", "Yang",
 ];
+
+function pickName(balancedPool, extraPool) {
+    const pool = Math.random() < 0.5 ? balancedPool : extraPool;
+    return randomFromList(pool);
+}
+
 
 // Per-state name + one area code used for every phone number
 // generated in that state (plausible, not tied to a specific city —
@@ -4116,7 +4135,19 @@ function generateUsername(firstName, lastName) {
     return `${firstName.toLowerCase()}${lastName.toLowerCase()}${randomDigits}`;
 }
 
-function generatePassword(length, includeSymbols) {
+// True if the password has 3+ of the same character back-to-back —
+// some strict policies reject runs like that even in an otherwise
+// valid password.
+function hasRepeatedRun(chars) {
+    for (let i = 0; i <= chars.length - 3; i++) {
+        if (chars[i] === chars[i + 1] && chars[i] === chars[i + 2]) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function buildPasswordAttempt(length, includeSymbols) {
     const uppercase = "ABCDEFGHJKLMNPQRSTUVWXYZ";
     const lowercase = "abcdefghijkmnpqrstuvwxyz";
     const numbers = "23456789";
@@ -4146,12 +4177,27 @@ function generatePassword(length, includeSymbols) {
         [password[i], password[j]] = [password[j], password[i]];
     }
 
-    return password.join("");
+    return password;
+}
+
+function generatePassword(length, includeSymbols) {
+    // Regenerate on a 3+ repeated-character run rather than bake the
+    // rule into the char-selection itself — keeps the complexity
+    // guarantee above untouched and simple. A handful of retries is
+    // effectively always enough; the attempt cap just prevents an
+    // infinite loop on a pathological input (e.g. very short length).
+    const maxAttempts = 25;
+    let attempt = buildPasswordAttempt(length, includeSymbols);
+    for (let i = 1; i < maxAttempts && hasRepeatedRun(attempt); i++) {
+        attempt = buildPasswordAttempt(length, includeSymbols);
+    }
+
+    return attempt.join("");
 }
 
 function generatePerson(minAge, maxAge, stateAbbr, passwordOptions) {
-    const firstName = randomFromList(FIRST_NAMES);
-    const lastName = randomFromList(LAST_NAMES);
+    const firstName = pickName(FIRST_NAMES_BALANCED, FIRST_NAMES_EXTRA);
+    const lastName = pickName(LAST_NAMES_BALANCED, LAST_NAMES_EXTRA);
     const fullName = `${firstName} ${lastName}`;
 
     const dob = generateDOB(minAge, maxAge);

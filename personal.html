@@ -27,19 +27,26 @@
 <main class="container">
     <section class="generator-panel">
 
-        <div class="field-group">
-            <label for="firstName">First Name</label>
-            <div class="field-value-wrap">
-                <span id="firstName" class="field-value">—</span>
-                <button class="copy-btn" data-target="firstName" title="Copy">📋</button>
-            </div>
-        </div>
-
-        <div class="field-group">
-            <label for="lastName">Last Name</label>
-            <div class="field-value-wrap">
-                <span id="lastName" class="field-value">—</span>
-                <button class="copy-btn" data-target="lastName" title="Copy">📋</button>
+        <!-- First Name and Last Name paired the same way as Full Name+SSN
+             below — not a data relationship, just two short values sharing
+             a row for the same visual/space reason, so the top of the page
+             reads consistently with the grouped rows underneath it. -->
+        <div class="field-group stacked">
+            <div class="field-row">
+                <div class="field-item">
+                    <label for="firstName">First Name</label>
+                    <div class="field-value-wrap">
+                        <span id="firstName" class="field-value">—</span>
+                        <button class="copy-btn" data-target="firstName" title="Copy">📋</button>
+                    </div>
+                </div>
+                <div class="field-item">
+                    <label for="lastName">Last Name</label>
+                    <div class="field-value-wrap">
+                        <span id="lastName" class="field-value">—</span>
+                        <button class="copy-btn" data-target="lastName" title="Copy">📋</button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -115,8 +122,17 @@
         </div>
 
         <!-- City/state/zip are one location — grouped into one row (wraps
-             to fewer per line on narrow screens rather than staying scattered). -->
+             to fewer per line on narrow screens rather than staying scattered).
+             State-select leads the row it drives, same pattern as Age Range
+             leading DOB/Age above — reads as the control that produces the
+             fields after it. -->
         <div class="field-group stacked">
+            <div class="field-control-row">
+                <span class="control-label">Select state (also sets city/zip/phone)</span>
+                <select id="stateSelect">
+                    <option value="">Random</option>
+                </select>
+            </div>
             <div class="field-row">
                 <div class="field-item">
                     <label for="city">City</label>
@@ -139,12 +155,6 @@
                         <button class="copy-btn" data-target="zip" title="Copy">📋</button>
                     </div>
                 </div>
-            </div>
-            <div class="field-control-row">
-                <span class="control-label">Select state (also sets city/zip/phone)</span>
-                <select id="stateSelect">
-                    <option value="">Random</option>
-                </select>
             </div>
         </div>
 

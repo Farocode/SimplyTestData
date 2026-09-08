@@ -101,7 +101,8 @@ button:hover {
        needs the user's full attention — both span the whole width
        rather than getting squeezed into one column. */
     .generator-panel .field-group.stacked,
-    .generator-panel > .primary-btn {
+    .generator-panel > .primary-btn,
+    .generator-panel > .export-row {
         grid-column: 1 / -1;
     }
     /* Each grid cell is wide enough that stretching label to the far
