@@ -100,6 +100,11 @@ Verified: `node --check` on both changed JS files, HTML id-uniqueness check, and
 ## Ideas parked for later
 - Stylish global nav to switch between any tool page from any other tool page (not just back-to-home). Revisit once there are 2-3 tool pages built, so the pattern reflects real navigation needs instead of a guess.
 
+## Landing page (index.html) redesign — spec written 2026-09-08, not built
+Full spec: `docs/index-redesign-spec.md`. Two ideas, split out since one seems closer to decided:
+1. Bigger 2x2 card grid now that all four tools exist (currently an unpinned auto-fit grid that can go 4-across).
+2. Whether the landing page should have a tool directly usable on it, not just links out — three options laid out (do nothing / a small standalone widget like a UUID generator / an inline-expanding card), with open questions rather than a picked direction.
+
 ## Variety / dataset expansion
 - DONE — Name dataset expanded from 30/30 to 166 first names / 123 last names, merged from a user-supplied CSV sample (deduped against the original curated list, nothing removed).
   - DONE — Weighted pick to fix the skew: split into `FIRST_NAMES_BALANCED`/`FIRST_NAMES_EXTRA` (30/136) and `LAST_NAMES_BALANCED`/`LAST_NAMES_EXTRA` (30/93) — the original hand-balanced 30/30 vs. the CSV-merged batch that skews toward common Western/Hispanic names. `pickName()` picks one of the two pools with equal 50/50 probability, then draws randomly within it, so the small balanced pool isn't drowned out by the much larger skewed one. Verified: ~50/50 draw rate across 20,000 samples, `generatePerson()` still produces correct records end to end.

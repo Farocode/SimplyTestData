@@ -35,7 +35,9 @@ JS/SQL/XML/YAML formatting, real grammar-checking, and the Hemingway "rewriter" 
 Same standing gap as every round: this session can't get a live Safari render of the new page. Everything above is verified at the logic/data level, but the actual on-screen layout (tab switching, textarea sizing, the new subtool blocks) hasn't been eyeballed. Worth a look before or right after you push.
 
 ## Not yet actioned — from your most recent message
-You raised turning the four dashboard cards on `index.html` into a bigger 2x2 grid now that there are four tools, and separately floated maybe not liking a landing page with no tool immediately usable on it. Neither is built — flagging it here since it came in mid-build and deserves its own pass rather than a rushed change bolted onto this one.
+Spec written (not built): `docs/index-redesign-spec.md`, covering both the bigger 2x2 card grid and whether the landing page should have a tool directly usable on it. Open questions are in the spec rather than a picked direction — read it over when you're ready and it can go straight to a build.
+
+Also mentioned, not yet acted on: possibly renaming the project to "Simply Test Data" (and the GitHub repo itself) — that's a rename you'd do on GitHub's side, so nothing for me to touch until you've actually renamed the repo. Once you do, the docs/README/page titles referencing "Project Nebo" would need a pass to match.
 
 ## Dev loop reminder
 Sublime Text → Safari (local preview) → GitHub Desktop (commit/push). I don't commit or push — that's still on you.
