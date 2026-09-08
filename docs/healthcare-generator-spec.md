@@ -68,7 +68,7 @@ Four plan types, randomly weighted: Original Medicare only, Medicare Advantage (
 
 ## CSV export
 
-Same pattern as Personal Generator: "Records to export" number input (default 1, max 500) + Export CSV button, reusing per-record generation, comma/quote/newline escaping, CRLF line endings, filename `nebo-healthcare-records-YYYYMMDD.csv`.
+Same pattern as Personal Generator: "Records to export" number input (default 1, max 500) + Export CSV button, reusing per-record generation, comma/quote/newline escaping, CRLF line endings, filename `simply-test-data-healthcare-records-YYYYMMDD.csv`.
 
 ## Added 2026-09-08: NPI, Medication/Condition/Diagnosis Code
 

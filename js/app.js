@@ -2,6 +2,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     initializeTheme();
 
-    console.log("Project Nebo initialized.");
+    console.log("Simply Test Data initialized.");
 
 });

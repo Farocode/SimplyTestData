@@ -289,7 +289,7 @@ function downloadCsv(csvText) {
 
     const link = document.createElement("a");
     link.href = url;
-    link.download = `nebo-banking-records-${stamp}.csv`;
+    link.download = `simply-test-data-banking-records-${stamp}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

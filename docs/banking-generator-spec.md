@@ -65,4 +65,4 @@ Expiration date: a random month/year 1-48 months in the future from today, forma
 
 ## CSV export
 
-Same pattern as the other two pages: "Records to export" + Export CSV button, same escaping/CRLF/filename conventions (`nebo-banking-records-YYYYMMDD.csv`).
+Same pattern as the other two pages: "Records to export" + Export CSV button, same escaping/CRLF/filename conventions (`simply-test-data-banking-records-YYYYMMDD.csv`).

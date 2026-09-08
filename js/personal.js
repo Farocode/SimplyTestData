@@ -4357,7 +4357,7 @@ function downloadCsv(csvText) {
 
     const link = document.createElement("a");
     link.href = url;
-    link.download = `nebo-personal-records-${stamp}.csv`;
+    link.download = `simply-test-data-personal-records-${stamp}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

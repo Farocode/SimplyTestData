@@ -1,4 +1,4 @@
-# Project Nebo — Roadmap
+# Simply Test Data — Roadmap
 
 ## Personal Generator — nearing done
 - Name-dataset expansion and password options are both done. Next action per user: a style pass (revision/refactor/reduction) — the pre-release refactor pass already noted under "Deferred by design" below. No new fields planned before that.
@@ -149,5 +149,5 @@ Full spec: `docs/index-redesign-spec.md`.
 
 ## Export to CSV (done)
 - Spec: docs/csv-export-spec.md. Exports all fields as they appear, with a record-count input (default 1, max 500) next to a new Export CSV button below Generate.
-- Reuses generatePerson() per row. Handles comma/quote/newline escaping, CRLF line endings, filename stamped with the date (nebo-personal-records-YYYYMMDD.csv).
+- Reuses generatePerson() per row. Handles comma/quote/newline escaping, CRLF line endings, filename stamped with the date (simply-test-data-personal-records-YYYYMMDD.csv).
 - Verified: node syntax check, HTML/CSS balance checks, headless smoke test of generateCsv/escapeCsvField with sample data.

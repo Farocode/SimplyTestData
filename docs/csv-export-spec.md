@@ -26,7 +26,7 @@ Nothing about the existing single-record display/Generate button changes.
   columns.)
 - Runs entirely in the browser — builds the CSV text in JS, triggers a
   download via a Blob + temporary link. No server, no library needed.
-- Filename: something like `nebo-personal-<N>-records-<date>.csv`.
+- Filename: something like `simply-test-data-personal-<N>-records-<date>.csv`.
 
 ## Edge cases
 - Non-numeric or blank input defaults to 1.
