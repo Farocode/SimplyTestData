@@ -51,21 +51,22 @@
             </div>
         </div>
 
-        <div class="field-group">
-            <label for="dob">Date of Birth</label>
-            <div class="field-value-wrap">
-                <span id="dob" class="field-value">—</span>
-                <button class="copy-btn" data-target="dob" title="Copy">📋</button>
-            </div>
-        </div>
-
-        <!-- Age range control lives with the field it drives (also feeds DOB above). -->
+        <!-- DOB and Age are the same underlying data — grouped into one row. -->
         <div class="field-group stacked">
             <div class="field-row">
-                <label for="age">Age</label>
-                <div class="field-value-wrap">
-                    <span id="age" class="field-value">—</span>
-                    <button class="copy-btn" data-target="age" title="Copy">📋</button>
+                <div class="field-item">
+                    <label for="dob">Date of Birth</label>
+                    <div class="field-value-wrap">
+                        <span id="dob" class="field-value">—</span>
+                        <button class="copy-btn" data-target="dob" title="Copy">📋</button>
+                    </div>
+                </div>
+                <div class="field-item">
+                    <label for="age">Age</label>
+                    <div class="field-value-wrap">
+                        <span id="age" class="field-value">—</span>
+                        <button class="copy-btn" data-target="age" title="Copy">📋</button>
+                    </div>
                 </div>
             </div>
             <div class="field-control-row">
@@ -102,21 +103,30 @@
             </div>
         </div>
 
-        <div class="field-group">
-            <label for="city">City</label>
-            <div class="field-value-wrap">
-                <span id="city" class="field-value">—</span>
-                <button class="copy-btn" data-target="city" title="Copy">📋</button>
-            </div>
-        </div>
-
-        <!-- State control lives with the field it drives (also feeds city/zip/phone area code). -->
+        <!-- City/state/zip are one location — grouped into one row (wraps
+             to fewer per line on narrow screens rather than staying scattered). -->
         <div class="field-group stacked">
             <div class="field-row">
-                <label for="state">State</label>
-                <div class="field-value-wrap">
-                    <span id="state" class="field-value">—</span>
-                    <button class="copy-btn" data-target="state" title="Copy">📋</button>
+                <div class="field-item">
+                    <label for="city">City</label>
+                    <div class="field-value-wrap">
+                        <span id="city" class="field-value">—</span>
+                        <button class="copy-btn" data-target="city" title="Copy">📋</button>
+                    </div>
+                </div>
+                <div class="field-item">
+                    <label for="state">State</label>
+                    <div class="field-value-wrap">
+                        <span id="state" class="field-value">—</span>
+                        <button class="copy-btn" data-target="state" title="Copy">📋</button>
+                    </div>
+                </div>
+                <div class="field-item">
+                    <label for="zip">Zip</label>
+                    <div class="field-value-wrap">
+                        <span id="zip" class="field-value">—</span>
+                        <button class="copy-btn" data-target="zip" title="Copy">📋</button>
+                    </div>
                 </div>
             </div>
             <div class="field-control-row">
@@ -124,14 +134,6 @@
                 <select id="stateSelect">
                     <option value="">Random</option>
                 </select>
-            </div>
-        </div>
-
-        <div class="field-group">
-            <label for="zip">Zip</label>
-            <div class="field-value-wrap">
-                <span id="zip" class="field-value">—</span>
-                <button class="copy-btn" data-target="zip" title="Copy">📋</button>
             </div>
         </div>
 

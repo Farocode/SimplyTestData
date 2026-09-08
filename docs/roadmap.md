@@ -8,6 +8,13 @@
 - DONE — Desktop two-column grid refinement: label/value pairs were stretching to the far edges of each ~400px grid cell, leaving an odd empty gap in the middle. Now they cluster on the left of each cell instead, matching how the single-column layout already reads.
 - DONE — Label contrast: field labels (First Name, Street, etc.) were noticeably dimmer than their bold values and didn't draw the eye. Added a dedicated `--text-label` theme token (brighter than `--text-secondary` in dark mode, darker in light mode) and bumped label font-weight to 600.
 
+## Still open for the final style pass
+- Empty grid cell next to Username on desktop (Password is full-width, so nothing pairs with Username in the second column) — cosmetic, not a bug, flagged for consideration alongside the rest.
+- Longer emails (e.g. "elizabeth.johnson233@example.net") are still long enough to wrap the row to a second line even with the overflow fix — user is considering a character limit on generated emails as part of the style pass, rather than more layout tweaking.
+
+## Field grouping
+- DONE — Date of Birth + Age grouped into one row (same underlying data), and City + State + Zip grouped into one row (one location). Each related value gets a compact label-over-value block (new `.field-item` class) instead of the full label-left/value-right row, so they can sit side by side. Rows wrap to fewer items per line on narrow screens automatically (flex-wrap, no separate breakpoint needed) rather than needing to be full-width or fully stacked — matches "same general area if not the same row." Age-range and state-select controls still live directly under their respective group.
+
 ## Next up
 - Build out Healthcare card (MBI, Medicare Part A/B dates, coverage info)
 - Build out Banking card

@@ -173,6 +173,24 @@ button:hover {
     align-items: center;
     gap: 0.4rem 0.75rem;
 }
+/* A field-row can hold several related values (DOB+Age, City/State/Zip)
+   instead of one label/value pair. Each gets its own compact block —
+   label on top, value+copy below — so a handful of short values can
+   sit "side to side" without cramming a full label-left/value-right
+   row into a third of the space. flex-wrap on the row above means
+   they naturally drop to fewer per line when the width runs out,
+   rather than needing a separate breakpoint for every group size. */
+.field-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    flex: 1 1 100px;
+    min-width: 90px;
+}
+.field-item .field-value-wrap {
+    flex: 0 0 auto;
+    justify-content: flex-start;
+}
 .field-control-row {
     display: flex;
     flex-wrap: wrap;
