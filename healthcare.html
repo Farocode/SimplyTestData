@@ -34,7 +34,7 @@
              twice (Full Name, then Email/the CSV export row). -->
         <div class="field-group stacked">
             <div class="field-row">
-                <label for="mbi">MBI</label>
+                <label for="mbi">Medicare ID (MBI)</label>
                 <div class="field-value-wrap">
                     <span id="mbi" class="field-value">—</span>
                     <button class="copy-btn" data-target="mbi" title="Copy">📋</button>
@@ -107,18 +107,25 @@
                         <button class="copy-btn" data-target="payer" title="Copy">📋</button>
                     </div>
                 </div>
-                <div class="field-item">
-                    <label for="memberId">Member ID</label>
-                    <div class="field-value-wrap">
-                        <span id="memberId" class="field-value">—</span>
-                        <button class="copy-btn" data-target="memberId" title="Copy">📋</button>
-                    </div>
-                </div>
+            </div>
+            <!-- Group Number + Member ID always share their own line,
+                 in that order — kept as a second fixed field-row rather
+                 than folded into the row above so they don't drift
+                 between one line and two depending on which values
+                 happen to be longest. -->
+            <div class="field-row">
                 <div class="field-item">
                     <label for="groupNumber">Group Number</label>
                     <div class="field-value-wrap">
                         <span id="groupNumber" class="field-value">—</span>
                         <button class="copy-btn" data-target="groupNumber" title="Copy">📋</button>
+                    </div>
+                </div>
+                <div class="field-item">
+                    <label for="memberId">Member ID</label>
+                    <div class="field-value-wrap">
+                        <span id="memberId" class="field-value">—</span>
+                        <button class="copy-btn" data-target="memberId" title="Copy">📋</button>
                     </div>
                 </div>
             </div>

@@ -12,9 +12,9 @@ Status: spec written 2026-09-08, about to be built this session.
 
 All groups are full-width `field-group stacked` rows (like Email in Personal) — deliberately avoiding the plain/paired-by-DOM-order pattern that caused the empty-grid-cell bug twice already in Personal Generator. No plain field-groups on this page.
 
-1. **MBI** (Medicare Beneficiary Identifier) — own row, single value + copy button.
+1. **MBI** — own row, single value + copy button. Label reads "Medicare ID (MBI)" (2026-09-08: added "Medicare ID" context per feedback — MBI on its own reads as inside baseball to anyone not already familiar with the term).
 2. **Enrollment Period** control (leads the row) → **Part A Effective Date** | **Part B Effective Date** (2 field-items, one row) — same "control leads the fields it drives" pattern as Age Range → DOB/Age.
-3. **Plan Type** control (leads the row) → **Payer** | **Member ID** | **Group Number** (3 field-items, one row) — same pattern as State → City/State/Zip.
+3. **Plan Type** control (leads the row) → **Plan Type** | **Payer** on one line, then **Group Number** | **Member ID** on a fixed second line (2026-09-08: split into two fixed field-rows rather than one 4-item wrapping row, per feedback — Group Number/Member ID were landing on a different line depending on which values happened to be longest; now they always share their own line, in that order).
 4. **Body Composition Range** control (leads the row) → **Height** | **Weight** | **BMI** (3 field-items, one row).
 5. Generate button.
 6. CSV export row — same "records to export" + button pattern as Personal.
