@@ -101,6 +101,21 @@ Verified: `node --check` on both changed JS files, HTML id-uniqueness check, and
 
 Re-verified after the rewrite: `node --check`, HTML id-uniqueness (9 ids now, down from 50 — much less DOM per page), and a headless test exercising every tool's every action against representative input (confirms nothing throws and each action returns a sane `{output}`/`{status}` shape), plus a re-check of JSON validate/pretty-print and the SHA-256 known-vector test. Same standing Safari visual-check gap.
 
+**Committed by user, then two more small fixes 2026-09-08:**
+1. Input/output boxes weren't lining up side by side — the Tool selector + description sat above the input textarea only, so its (sometimes multi-line, e.g. the readability tool's long description) height pushed the input box down relative to the output box, which just had a one-line "Output" label above it. Moved the selector + description to a full-width block above the two-column workspace; both columns now start with an identical single-line label ("Input" / "Output") right before their textarea, so the two boxes always align regardless of description length.
+2. Textareas grown ~25% taller (320px → 400px min-height) per feedback.
+
+## All-tool style pass — DONE, built 2026-09-08
+A finish/polish pass across every page (Personal, Healthcare, Banking, QA Tools, index) — feel and interaction, not a color-palette or layout rework (color palette is still deliberately untouched, per earlier notes). Added:
+- Shared `--shadow-sm`/`--shadow-md` tokens (theme-aware, one set per light/dark) for subtle elevation on cards and panels.
+- Smooth transitions on every button/select/input/textarea/link (border, background, color, shadow, transform) — previously only the copy button and Generate button had any transition; state changes elsewhere were an instant snap.
+- A consistent accent-colored focus ring (`:focus-visible` + `:focus`) on every interactive element, replacing each browser's own default outline — same accent color across the whole site, keyboard-navigable and visually consistent in both themes.
+- Hover elevation on the four landing-page cards (lift + glow + border highlight) so they read as clickable beyond just the existing border-color change.
+- A slight press-down (`translateY(1px)`) on button `:active` for tactile click feedback, and a small lift + shadow on the primary Generate/action buttons' `:hover`.
+- A smooth background/color transition on `<body>` so the light/dark theme toggle fades instead of snapping.
+
+Verified: div open/close tag-balance check across all 5 HTML pages, CSS brace-balance check across all 3 stylesheets — all clean. This is a CSS-only change (no HTML structure changes beyond the QA Tools alignment fix above, no JS touched), so the existing headless logic test suite still applies unchanged. Standing Safari visual-check gap applies here more than usual — hover/focus states and transitions are exactly the kind of thing worth an actual look before trusting the feel is right.
+
 ## Ideas parked for later
 - Stylish global nav to switch between any tool page from any other tool page (not just back-to-home). Revisit once there are 2-3 tool pages built, so the pattern reflects real navigation needs instead of a guess.
 

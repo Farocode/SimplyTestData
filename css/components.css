@@ -326,11 +326,15 @@ button:hover {
         align-items: start;
     }
 }
+.qa-tool-picker {
+    margin-bottom: 1.5rem;
+}
 .qa-input-col,
 .qa-output-col {
     display: flex;
     flex-direction: column;
 }
+.qa-input-col > label,
 .qa-output-col > label {
     font-size: 0.8rem;
     color: var(--text-secondary);
@@ -366,7 +370,7 @@ button:hover {
 .qa-input,
 .qa-output {
     width: 100%;
-    min-height: 320px;
+    min-height: 400px;
     padding: 0.75rem;
     background: var(--surface);
     border: 1px solid var(--border);
@@ -430,4 +434,85 @@ button:hover {
     background: var(--surface);
     padding: 0.1rem 0.35rem;
     border-radius: 0.3rem;
+}
+
+/* --- Global polish -------------------------------------------------
+   Shared across every page: smooth transitions instead of instant
+   state snaps, a consistent accent-colored focus ring (replacing each
+   browser's own default outline, which looks different per-browser
+   and doesn't match the theme), and a little hover elevation on the
+   things people click through most (cards, buttons, links). Colors
+   and layout are untouched -- this is a feel/finish pass, not a
+   palette or structure change. */
+
+button,
+select,
+input,
+textarea,
+.card-link-btn,
+.back-link,
+.home-link {
+    transition:
+        border-color 0.15s ease,
+        background-color 0.15s ease,
+        color 0.15s ease,
+        box-shadow 0.15s ease,
+        transform 0.15s ease;
+}
+
+button:focus-visible,
+select:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+.card-link-btn:focus-visible,
+.back-link:focus-visible,
+.home-link:focus-visible {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+select:focus,
+input:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+/* Landing page cards: a light lift + glow on hover signals "this is
+   clickable" beyond just the border-color change the link itself
+   already gets. */
+.card {
+    box-shadow: var(--shadow-sm);
+}
+.card:hover {
+    border-color: var(--accent);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-3px);
+}
+
+.generator-panel,
+.qa-input,
+.qa-output,
+.qa-result {
+    box-shadow: var(--shadow-sm);
+}
+
+.primary-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.copy-btn:active,
+button:not(:disabled):active {
+    transform: translateY(1px);
+}
+
+/* .card button is the disabled "Coming Soon" placeholder state --
+   opt it back out of the hover-lift/focus-glow treatment above since
+   it isn't actually interactive. */
+.card button {
+    transform: none !important;
+    box-shadow: none !important;
 }

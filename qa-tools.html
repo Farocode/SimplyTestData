@@ -26,39 +26,43 @@
 
 <main class="container">
 
-    <!-- One shared input, one shared output. The select below picks
-         which of the eleven tools the action buttons and Clear All
-         act on -- so there's always exactly one set of boxes on
-         screen, not a tool-per-block page. -->
+    <!-- Tool selector + description live above the two-column workspace,
+         full width -- so their (variable-height, sometimes multi-line)
+         content never pushes the input box out of alignment with the
+         output box. Both columns below start with an identical
+         single-line label, so the two textareas always line up. -->
+    <div class="qa-tool-picker">
+        <div class="qa-field-row">
+            <label for="toolSelect">Tool</label>
+            <select id="toolSelect">
+                <optgroup label="Text Tools">
+                    <option value="whitespace">Whitespace Cleanup</option>
+                    <option value="case">Case Conversion</option>
+                    <option value="readability">Readability Analyzer</option>
+                </optgroup>
+                <optgroup label="Format &amp; Validate">
+                    <option value="json">JSON</option>
+                </optgroup>
+                <optgroup label="Encode / Decode">
+                    <option value="base64">Base64</option>
+                    <option value="url">URL Encode / Decode</option>
+                    <option value="html">HTML Entities</option>
+                </optgroup>
+                <optgroup label="Generators / Converters">
+                    <option value="uuid">UUID</option>
+                    <option value="hash">Hash</option>
+                    <option value="timestamp">Timestamp Converter</option>
+                    <option value="color">Color Converter</option>
+                </optgroup>
+            </select>
+        </div>
+        <p class="qa-tool-desc" id="toolDesc"></p>
+    </div>
+
     <div class="qa-workspace">
 
         <div class="qa-input-col">
-            <div class="qa-field-row">
-                <label for="toolSelect">Tool</label>
-                <select id="toolSelect">
-                    <optgroup label="Text Tools">
-                        <option value="whitespace">Whitespace Cleanup</option>
-                        <option value="case">Case Conversion</option>
-                        <option value="readability">Readability Analyzer</option>
-                    </optgroup>
-                    <optgroup label="Format &amp; Validate">
-                        <option value="json">JSON</option>
-                    </optgroup>
-                    <optgroup label="Encode / Decode">
-                        <option value="base64">Base64</option>
-                        <option value="url">URL Encode / Decode</option>
-                        <option value="html">HTML Entities</option>
-                    </optgroup>
-                    <optgroup label="Generators / Converters">
-                        <option value="uuid">UUID</option>
-                        <option value="hash">Hash</option>
-                        <option value="timestamp">Timestamp Converter</option>
-                        <option value="color">Color Converter</option>
-                    </optgroup>
-                </select>
-            </div>
-            <p class="qa-tool-desc" id="toolDesc"></p>
-
+            <label for="qaInput">Input</label>
             <textarea class="qa-input" id="qaInput" placeholder="Paste text here..." spellcheck="false"></textarea>
 
             <div class="qa-option-row" id="qaOptions" hidden></div>

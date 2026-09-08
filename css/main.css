@@ -11,6 +11,8 @@ body {
         sans-serif;
     background: var(--background);
     color: var(--text-primary);
+    /* Smooths the light/dark toggle instead of an instant color snap. */
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 .site-header {
     display: flex;
