@@ -27,17 +27,25 @@
 <main class="container">
     <section class="generator-panel">
 
-        <!-- MBI gets its own full-width row (same pattern as Email in
-             Personal) rather than being paired with anything by DOM
-             order — every group on this page is full-width for that
-             reason, avoiding the empty-grid-cell bug that hit Personal
-             twice (Full Name, then Email/the CSV export row). -->
+        <!-- MBI and NPI are both just ID numbers -- paired the same way
+             as First/Last Name in Personal (two short values, no control
+             needed, "stacked" gets the full-row span so neither is
+             confined to a cramped half-width grid cell). -->
         <div class="field-group stacked">
             <div class="field-row">
-                <label for="mbi">Medicare ID (MBI)</label>
-                <div class="field-value-wrap">
-                    <span id="mbi" class="field-value">—</span>
-                    <button class="copy-btn" data-target="mbi" title="Copy">📋</button>
+                <div class="field-item">
+                    <label for="mbi">Medicare ID (MBI)</label>
+                    <div class="field-value-wrap">
+                        <span id="mbi" class="field-value">—</span>
+                        <button class="copy-btn" data-target="mbi" title="Copy">📋</button>
+                    </div>
+                </div>
+                <div class="field-item">
+                    <label for="npi">Provider ID (NPI)</label>
+                    <div class="field-value-wrap">
+                        <span id="npi" class="field-value">—</span>
+                        <button class="copy-btn" data-target="npi" title="Copy">📋</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -126,6 +134,62 @@
                     <div class="field-value-wrap">
                         <span id="memberId" class="field-value">—</span>
                         <button class="copy-btn" data-target="memberId" title="Copy">📋</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Medication leads Condition/Diagnosis Code, same pattern as
+             Plan Type -> Payer/etc above. Fixed pool of 20 real
+             medications, each paired with a verified ICD-10 code -- see
+             docs/healthcare-generator-spec.md. -->
+        <div class="field-group stacked">
+            <div class="field-control-row">
+                <span class="control-label">Medication (drives Condition/Diagnosis Code)</span>
+                <select id="medicationSelect">
+                    <option value="">Random</option>
+                    <option value="Metformin">Metformin</option>
+                    <option value="Lisinopril">Lisinopril</option>
+                    <option value="Atorvastatin">Atorvastatin</option>
+                    <option value="Levothyroxine">Levothyroxine</option>
+                    <option value="Albuterol">Albuterol</option>
+                    <option value="Omeprazole">Omeprazole</option>
+                    <option value="Amlodipine">Amlodipine</option>
+                    <option value="Metoprolol">Metoprolol</option>
+                    <option value="Gabapentin">Gabapentin</option>
+                    <option value="Sertraline">Sertraline</option>
+                    <option value="Losartan">Losartan</option>
+                    <option value="Simvastatin">Simvastatin</option>
+                    <option value="Furosemide">Furosemide</option>
+                    <option value="Insulin Glargine">Insulin Glargine</option>
+                    <option value="Hydrochlorothiazide">Hydrochlorothiazide</option>
+                    <option value="Warfarin">Warfarin</option>
+                    <option value="Prednisone">Prednisone</option>
+                    <option value="Amoxicillin">Amoxicillin</option>
+                    <option value="Ibuprofen">Ibuprofen</option>
+                    <option value="Escitalopram">Escitalopram</option>
+                </select>
+            </div>
+            <div class="field-row">
+                <div class="field-item">
+                    <label for="medication">Medication</label>
+                    <div class="field-value-wrap">
+                        <span id="medication" class="field-value">—</span>
+                        <button class="copy-btn" data-target="medication" title="Copy">📋</button>
+                    </div>
+                </div>
+                <div class="field-item">
+                    <label for="condition">Condition</label>
+                    <div class="field-value-wrap">
+                        <span id="condition" class="field-value">—</span>
+                        <button class="copy-btn" data-target="condition" title="Copy">📋</button>
+                    </div>
+                </div>
+                <div class="field-item">
+                    <label for="diagnosisCode">Diagnosis Code (ICD-10)</label>
+                    <div class="field-value-wrap">
+                        <span id="diagnosisCode" class="field-value">—</span>
+                        <button class="copy-btn" data-target="diagnosisCode" title="Copy">📋</button>
                     </div>
                 </div>
             </div>

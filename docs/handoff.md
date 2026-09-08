@@ -4,44 +4,39 @@ Date: 2026-09-08
 
 ## Where things stand
 
-Healthcare Generator (`healthcare.html`) is built — the project's second tool page, wired up from the index.html card. **Not yet committed/pushed.** The three logged-but-not-built items from the prior round (Street/Phone position, more street name variety, condense First/Last/Full Name/SSN rows) are still open and untouched — see `docs/roadmap.md`'s "Logged for later" section.
+Healthcare Generator got two follow-up rounds after the initial build (both already pushed as a separate commit before this): a layout fix (Member ID/Group Number, MBI label) and then two new fields (NPI, Medication/Condition/Diagnosis Code). **This second round is not yet committed/pushed.**
 
 Repo: `~/Documents/GitHub/project-nebo` on the Mac (linked via device bridge). GitHub Pages: farocode.github.io/project-nebo/
 
-## What just got built (this session)
+## What just got built (this session, this round)
 
-Full spec-then-build per your feature list (MBI, real insurer names, Part A/B dates with an enrollment-period selector, height/weight with an underwriting-edge-case option) plus a few additions. Spec: `docs/healthcare-generator-spec.md`, roadmap entry: `docs/roadmap.md` under "Healthcare Generator."
+Two new fields added per your follow-up feedback, after confirming scope with you first (fixed generator-side pool, not a user-facing picker; NPI + ICD-10 both wanted):
 
-- **MBI** — matches the real CMS 11-character format (verified against CMS's own format PDF), displayed dashed like an actual card.
-- **Enrollment Period selector (IEP/GEP/SEP or Random)** drives Part A + Part B Effective Date using the actual medicare.gov coverage-start rules for each period. Deliberately left out AEP and the Medicare Advantage OEP — those are plan-*switch* windows for people already enrolled, not initial Part A/B enrollment, so they'd drive a different kind of date. Logged as a possible separate addition.
-- **Plan Type selector** (Original Medicare only / Medicare Advantage / Medigap+Part D / Part D only) drives Payer, Member ID, and Group Number. Original Medicare correctly gets no private carrier (Payer = "Medicare (Original)", Member ID = the MBI, Group Number = "N/A"). Everything else draws from a curated list of ~24 real, currently-operating US insurers.
-- **Body Composition Range selector** (Standard / Outside Standard Range / Random) drives Height, Weight, and BMI — "Outside" covers both underweight and obese/extreme-obese, for exercising underwriting edge cases. Labeled clearly (in the spec and the control label) as a general reference band, not a specific regulatory or carrier cutoff.
-- **CSV export** — same pattern as Personal Generator.
-- Every field group on this page is full-width from the start — no plain/paired-by-DOM-order groups — deliberately sidestepping the empty-grid-cell bug class that hit Personal Generator twice.
+- **NPI (Provider ID)** — paired with MBI on its own row, no control needed (same "two short IDs, no dropdown" pattern as Personal's First/Last Name). Real CMS check-digit algorithm (Luhn with the "80840" card-issuer prefix folded into a constant) — verified against CMS's own published worked example before writing any code, then re-verified against 5,000 generated NPIs.
+- **Medication → Condition → Diagnosis Code (ICD-10)** — fixed pool of 20 real medications (confirmed with you: pool size, not a checklist UI). Each medication's ICD-10 code was individually checked against icd10data.com rather than recalled from memory — full table's in `docs/healthcare-generator-spec.md`. A Medication selector leads the row (Random by default), same pattern as Plan Type/Enrollment Period.
 
-Files: `healthcare.html`, `js/healthcare.js` (new), `index.html` (Healthcare card now links to the tool instead of "Coming Soon"), `docs/healthcare-generator-spec.md` (new), `docs/roadmap.md`.
+Files: `js/healthcare.js`, `healthcare.html`, `docs/healthcare-generator-spec.md`, `docs/roadmap.md`.
 
 ## Verification done
 
 - `node --check js/healthcare.js` — syntax OK
-- HTML div-balance and duplicate-id checks on both `healthcare.html` and `index.html` — OK
-- Headless Node smoke test against the actual file: MBI format regex-verified across 5,000 samples (0 failures); GEP/IEP/SEP effective-date rules checked (right months, always the 1st of a month); Original-Medicare-vs-private-carrier coverage logic checked (500 samples each plan type, 0 mismatches); CSV structure/escaping checked.
-- Caught and fixed a real bug during verification: a small number of "Outside Standard Range" BMI values could round to exactly 18.5 (the standard band's edge) after weight rounded to a whole pound. Widened the buffer so the generated target can never land there; re-verified with 20,000 samples afterward, 0 landed in the standard band.
-- **Not yet done: a visual look in Safari.** Same standing limitation noted in the last handoff — this session still can't get a live render of a page from here, so the actual on-screen layout (especially the 4-item Plan Type row on desktop) hasn't been eyeballed.
+- HTML div-balance and duplicate-id checks — OK (23 unique ids)
+- Headless Node smoke test: NPI check digit matches CMS's own worked example exactly (base `123456789` → `3`); 5,000 generated NPIs all format- and check-digit-correct; medication pool confirmed at exactly 20 unique entries, all 20 reachable via "Random" over 5,000 draws; specific-medication selection resolves correctly; full record and CSV structure checked.
+- **Not yet done: a visual look in Safari.** Same standing limitation as every round this session — still can't get a live render from here. This round adds a new NPI/MBI pairing and a new 3-item Medication row, neither eyeballed yet.
 
 ## Not yet done — needs a look
 
-1. **Commit and push.** Nothing from this session is committed yet.
-2. **Visual check in Safari** (see above), especially the desktop two-column layout and the 4-item Plan Type/Payer/Member ID/Group Number row — that's the widest row on this page and hasn't been eyeballed.
-3. The three items logged last round (Street/Phone position, more street combos, condense identity rows) are still untouched — worth deciding whether to fold those in before or after this Healthcare build settles.
+1. **Commit and push** this round (NPI + Medication fields, plus the spec/roadmap updates).
+2. **Visual check in Safari**, especially the new MBI/NPI row and the Medication/Condition/Diagnosis Code row.
+3. Still open from earlier rounds, untouched: Street/Phone position, more street name combos, condense the Personal Generator identity rows (First/Last/Full Name/SSN) — see `docs/roadmap.md`'s "Logged for later" section and `docs/identity-row-condense-spec.md`.
 
 ## Next up (bigger picture)
 
-Per the roadmap, with Healthcare built:
+Per the roadmap:
 - Build out the Banking card
 - Build out the QA Tools card (JSON/XML/SQL formatters)
-- A pre-release refactor/cleanup pass across the codebase (after more cards exist — there are two now)
-- A color/style pass beyond the current white/dark-blue look, once there's more than one tool page to design against
+- A pre-release refactor/cleanup pass across the codebase
+- A color/style pass beyond the current white/dark-blue look
 
 ## Dev loop reminder
 

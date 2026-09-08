@@ -61,6 +61,39 @@ function generateMBI() {
     return `${raw.slice(0, 4)}-${raw.slice(4, 7)}-${raw.slice(7, 11)}`;
 }
 
+// --- NPI (National Provider Identifier) ------------------------------------
+// 10 digits: 9 random base digits + 1 Luhn check digit, per CMS's spec:
+// https://www.cms.gov/Regulations-and-Guidance/Administrative-Simplification/NationalProvIdentStand/Downloads/NPIcheckdigit.pdf
+// The check-digit algorithm below is verified against CMS's own worked
+// example (base 123456789 -> check digit 3).
+
+function computeNpiCheckDigit(nineDigits) {
+    // Constant 24 substitutes for the "80840" issuer prefix used when an
+    // NPI appears on a card issuer identifier, so a standalone NPI
+    // produces the same check digit either way.
+    let sum = 24;
+    for (let i = nineDigits.length - 1; i >= 0; i--) {
+        let digit = parseInt(nineDigits[i], 10);
+        const positionFromRight = nineDigits.length - i;
+        if (positionFromRight % 2 === 1) {
+            digit *= 2;
+            if (digit > 9) digit -= 9;
+        }
+        sum += digit;
+    }
+    const remainder = sum % 10;
+    return remainder === 0 ? 0 : 10 - remainder;
+}
+
+function generateNPI() {
+    // No real NPI starts with 0.
+    let base = String(randomInt(1, 9));
+    for (let i = 0; i < 8; i++) {
+        base += String(randomInt(0, 9));
+    }
+    return base + computeNpiCheckDigit(base);
+}
+
 // --- Enrollment period -> Part A / Part B effective date -----------------
 // Rules per medicare.gov (When does Medicare coverage start / Open
 // Enrollment): Part A and Part B share one effective date in this model
@@ -182,6 +215,44 @@ function generateCoverage(planType, mbi) {
     };
 }
 
+// --- Medication / Condition / Diagnosis Code --------------------------------
+// A fixed pool of 20 common, real medications, each paired with the
+// condition it's typically prescribed for and a verified ICD-10-CM
+// diagnosis code (checked individually against icd10data.com). Several
+// medications share a code where that's clinically accurate (e.g. four
+// different blood-pressure medications all map to I10) rather than
+// forcing 20 distinct codes.
+
+const MEDICATIONS = [
+    { medication: "Metformin", condition: "Type 2 Diabetes", icd10: "E11.9" },
+    { medication: "Lisinopril", condition: "Hypertension", icd10: "I10" },
+    { medication: "Atorvastatin", condition: "High Cholesterol", icd10: "E78.5" },
+    { medication: "Levothyroxine", condition: "Hypothyroidism", icd10: "E03.9" },
+    { medication: "Albuterol", condition: "Asthma", icd10: "J45.909" },
+    { medication: "Omeprazole", condition: "GERD", icd10: "K21.9" },
+    { medication: "Amlodipine", condition: "Hypertension", icd10: "I10" },
+    { medication: "Metoprolol", condition: "Hypertension", icd10: "I10" },
+    { medication: "Gabapentin", condition: "Chronic Pain", icd10: "G89.29" },
+    { medication: "Sertraline", condition: "Generalized Anxiety Disorder", icd10: "F41.1" },
+    { medication: "Losartan", condition: "Hypertension", icd10: "I10" },
+    { medication: "Simvastatin", condition: "High Cholesterol", icd10: "E78.5" },
+    { medication: "Furosemide", condition: "Heart Failure", icd10: "I50.9" },
+    { medication: "Insulin Glargine", condition: "Type 2 Diabetes", icd10: "E11.9" },
+    { medication: "Hydrochlorothiazide", condition: "Hypertension", icd10: "I10" },
+    { medication: "Warfarin", condition: "Atrial Fibrillation", icd10: "I48.91" },
+    { medication: "Prednisone", condition: "Rheumatoid Arthritis", icd10: "M06.9" },
+    { medication: "Amoxicillin", condition: "Upper Respiratory Infection", icd10: "J06.9" },
+    { medication: "Ibuprofen", condition: "Joint Pain", icd10: "M25.50" },
+    { medication: "Escitalopram", condition: "Major Depressive Disorder", icd10: "F32.9" }
+];
+
+function resolveMedication(selection) {
+    if (selection === "") {
+        return randomFromList(MEDICATIONS);
+    }
+    return MEDICATIONS.find((entry) => entry.medication === selection) || randomFromList(MEDICATIONS);
+}
+
 // --- Height / Weight / BMI -------------------------------------------------
 // "Standard" is a general reference band (18.5-29.9), not a fixed
 // regulatory or universal insurer cutoff — real underwriting tables vary
@@ -230,8 +301,9 @@ function generateHeightWeightBmi(range) {
 
 // --- Record assembly -------------------------------------------------------
 
-function generateHealthcareRecord(enrollmentSelection, planTypeSelection, bodyRangeSelection) {
+function generateHealthcareRecord(enrollmentSelection, planTypeSelection, medicationSelection, bodyRangeSelection) {
     const mbi = generateMBI();
+    const npi = generateNPI();
 
     const period = resolveSelection(enrollmentSelection, ENROLLMENT_PERIODS);
     const effectiveDate = generateEnrollmentEffectiveDate(period);
@@ -239,11 +311,14 @@ function generateHealthcareRecord(enrollmentSelection, planTypeSelection, bodyRa
     const planType = resolveSelection(planTypeSelection, PLAN_TYPES);
     const coverage = generateCoverage(planType, mbi);
 
+    const medicationEntry = resolveMedication(medicationSelection);
+
     const bodyRange = resolveSelection(bodyRangeSelection, BODY_RANGES);
     const body = generateHeightWeightBmi(bodyRange);
 
     return {
         mbi,
+        npi,
         enrollmentPeriod: ENROLLMENT_PERIOD_LABELS[period],
         partAEffective: formatDate(effectiveDate),
         partBEffective: formatDate(effectiveDate),
@@ -251,6 +326,9 @@ function generateHealthcareRecord(enrollmentSelection, planTypeSelection, bodyRa
         payer: coverage.payer,
         memberId: coverage.memberId,
         groupNumber: coverage.groupNumber,
+        medication: medicationEntry.medication,
+        condition: medicationEntry.condition,
+        diagnosisCode: medicationEntry.icd10,
         height: body.height,
         weight: body.weight,
         bmi: body.bmi
@@ -259,6 +337,7 @@ function generateHealthcareRecord(enrollmentSelection, planTypeSelection, bodyRa
 
 function renderRecord(record) {
     document.getElementById("mbi").textContent = record.mbi;
+    document.getElementById("npi").textContent = record.npi;
     document.getElementById("enrollmentPeriod").textContent = record.enrollmentPeriod;
     document.getElementById("partAEffective").textContent = record.partAEffective;
     document.getElementById("partBEffective").textContent = record.partBEffective;
@@ -266,6 +345,9 @@ function renderRecord(record) {
     document.getElementById("payer").textContent = record.payer;
     document.getElementById("memberId").textContent = record.memberId;
     document.getElementById("groupNumber").textContent = record.groupNumber;
+    document.getElementById("medication").textContent = record.medication;
+    document.getElementById("condition").textContent = record.condition;
+    document.getElementById("diagnosisCode").textContent = record.diagnosisCode;
     document.getElementById("height").textContent = record.height;
     document.getElementById("weight").textContent = record.weight;
     document.getElementById("bmi").textContent = record.bmi;
@@ -274,8 +356,9 @@ function renderRecord(record) {
 // --- CSV export -------------------------------------------------------
 
 const CSV_HEADERS = [
-    "MBI", "Enrollment Period", "Part A Effective Date", "Part B Effective Date",
-    "Plan Type", "Payer", "Member ID", "Group Number", "Height", "Weight", "BMI"
+    "MBI", "NPI", "Enrollment Period", "Part A Effective Date", "Part B Effective Date",
+    "Plan Type", "Payer", "Member ID", "Group Number",
+    "Medication", "Condition", "Diagnosis Code (ICD-10)", "Height", "Weight", "BMI"
 ];
 
 function getExportCount() {
@@ -297,6 +380,7 @@ function escapeCsvField(value) {
 function recordToCsvRow(record) {
     const fields = [
         record.mbi,
+        record.npi,
         record.enrollmentPeriod,
         record.partAEffective,
         record.partBEffective,
@@ -304,6 +388,9 @@ function recordToCsvRow(record) {
         record.payer,
         record.memberId,
         record.groupNumber,
+        record.medication,
+        record.condition,
+        record.diagnosisCode,
         record.height,
         record.weight,
         record.bmi
@@ -311,10 +398,10 @@ function recordToCsvRow(record) {
     return fields.map(escapeCsvField).join(",");
 }
 
-function generateCsv(count, enrollmentSelection, planTypeSelection, bodyRangeSelection) {
+function generateCsv(count, enrollmentSelection, planTypeSelection, medicationSelection, bodyRangeSelection) {
     const rows = [CSV_HEADERS.join(",")];
     for (let i = 0; i < count; i++) {
-        const record = generateHealthcareRecord(enrollmentSelection, planTypeSelection, bodyRangeSelection);
+        const record = generateHealthcareRecord(enrollmentSelection, planTypeSelection, medicationSelection, bodyRangeSelection);
         rows.push(recordToCsvRow(record));
     }
     return rows.join("\r\n");
@@ -341,6 +428,7 @@ function initializeHealthcareGenerator() {
     const regenerateBtn = document.getElementById("regenerateBtn");
     const enrollmentSelect = document.getElementById("enrollmentSelect");
     const planTypeSelect = document.getElementById("planTypeSelect");
+    const medicationSelect = document.getElementById("medicationSelect");
     const bodyRangeSelect = document.getElementById("bodyRangeSelect");
     const exportCsvBtn = document.getElementById("exportCsvBtn");
 
@@ -348,6 +436,7 @@ function initializeHealthcareGenerator() {
         const record = generateHealthcareRecord(
             enrollmentSelect.value,
             planTypeSelect.value,
+            medicationSelect.value,
             bodyRangeSelect.value
         );
         renderRecord(record);
@@ -359,6 +448,7 @@ function initializeHealthcareGenerator() {
             count,
             enrollmentSelect.value,
             planTypeSelect.value,
+            medicationSelect.value,
             bodyRangeSelect.value
         );
         downloadCsv(csvText);
@@ -367,6 +457,7 @@ function initializeHealthcareGenerator() {
     renderRecord(generateHealthcareRecord(
         enrollmentSelect.value,
         planTypeSelect.value,
+        medicationSelect.value,
         bodyRangeSelect.value
     ));
 }

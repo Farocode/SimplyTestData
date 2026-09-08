@@ -70,6 +70,40 @@ Four plan types, randomly weighted: Original Medicare only, Medicare Advantage (
 
 Same pattern as Personal Generator: "Records to export" number input (default 1, max 500) + Export CSV button, reusing per-record generation, comma/quote/newline escaping, CRLF line endings, filename `nebo-healthcare-records-YYYYMMDD.csv`.
 
+## Added 2026-09-08: NPI, Medication/Condition/Diagnosis Code
+
+Three fields added after the initial build, per follow-up feedback:
+
+- **NPI (Provider ID)** — paired with MBI on its own row (same "two short ID values, no control needed" pattern as First/Last Name in Personal). 10 digits: 9 random base digits (first digit non-zero) + 1 Luhn check digit, computed per [CMS's NPI check digit spec](https://www.cms.gov/Regulations-and-Guidance/Administrative-Simplification/NationalProvIdentStand/Downloads/NPIcheckdigit.pdf) (the constant 24 substituting for the "80840" card-issuer prefix). Verified against CMS's own worked example (base `123456789` → check digit `3`).
+- **Medication → Condition / Diagnosis Code (ICD-10)** — a fixed pool of 20 real, common medications (per user request: "select up to 20 different medications" = a fixed generator-side pool, not a user-facing picker), each paired with the condition it's typically prescribed for and a verified ICD-10-CM code. Every code was checked individually against icd10data.com (not just recalled) — see the table below. A Medication selector (leads the row, same pattern as Plan Type/Enrollment Period) drives Condition and Diagnosis Code together; "Random" (default) draws one of the 20 pool entries per record, same as the other selectors on this page.
+
+| Medication | Condition | ICD-10 |
+|---|---|---|
+| Metformin | Type 2 Diabetes | E11.9 |
+| Lisinopril | Hypertension | I10 |
+| Atorvastatin | High Cholesterol | E78.5 |
+| Levothyroxine | Hypothyroidism | E03.9 |
+| Albuterol | Asthma | J45.909 |
+| Omeprazole | GERD | K21.9 |
+| Amlodipine | Hypertension | I10 |
+| Metoprolol | Hypertension | I10 |
+| Gabapentin | Chronic Pain | G89.29 |
+| Sertraline | Generalized Anxiety Disorder | F41.1 |
+| Losartan | Hypertension | I10 |
+| Simvastatin | High Cholesterol | E78.5 |
+| Furosemide | Heart Failure | I50.9 |
+| Insulin Glargine | Type 2 Diabetes | E11.9 |
+| Hydrochlorothiazide | Hypertension | I10 |
+| Warfarin | Atrial Fibrillation | I48.91 |
+| Prednisone | Rheumatoid Arthritis | M06.9 |
+| Amoxicillin | Upper Respiratory Infection | J06.9 |
+| Ibuprofen | Joint Pain | M25.50 |
+| Escitalopram | Major Depressive Disorder | F32.9 |
+
+Several medications intentionally share a code (e.g. four blood-pressure drugs all map to I10) rather than forcing 20 distinct codes — that's clinically accurate, not a shortcut.
+
+Each generated record (on-screen or per CSV row) gets exactly one medication/condition/diagnosis-code triple — not a multi-medication list per person. If a person taking several medications at once turns out to be useful later, that's a bigger change (a variable-length list per record, different CSV shape) and would need its own decision, not an assumption baked in here.
+
 ## Logged for later, not in this build
 
 - Delayed Part B effective date via employer-coverage SEP (separate from Part A date).
