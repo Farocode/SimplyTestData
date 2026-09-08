@@ -80,18 +80,22 @@ Verified: `node --check`, HTML div-balance + duplicate-id checks, and a headless
 ### Logged for later, not built
 - Regional routing-number variants — big banks (Chase, BofA, TD, etc.) actually have several real routing numbers depending on legacy-bank/state; this generator picked one well-documented number per bank rather than modeling every variant.
 
-## QA Tools card — wishlist logged 2026-09-08, not started
+## QA Tools card — spec written 2026-09-08, not built
 
-User's favorite planned page, per their own words. Ideas mentioned so far, not yet spec'd or built:
+User's favorite planned page, per their own words. Full spec: `docs/qa-tools-generator-spec.md`.
 
-- Formatting/validation checks for JSON, JavaScript, SQL
-- Spelling and grammar checking
-- A "Hemingway filter" / rewriter (flag or simplify complex sentences)
-- Leading/trailing whitespace trimming
-- Case conversion: capitalize, camelCase, lowercase, etc.
-- General principle from the user: "whatever common languages, tools, translators, whatever, can be easily added and adapted without being its own new app or something, I'm open" — so lean toward broad, lightweight utilities over narrow one-off tools, as long as each stays a straightforward addition rather than its own separate application.
+**DONE, built 2026-09-08 (first pass, trimmed scope).** Per explicit instruction — "I do want to eliminate anything that relies on external libraries or costs me anything, so that stuff can go straight out" — this pass shipped only zero-dependency, zero-cost, native-browser-API tools. `qa-tools.html` + `js/qa-tools.js`, one page holding four tabbed categories (a new UI shape: input → transform → output, distinct from the record-generator pattern the other three pages use):
+- **Text Tools** — whitespace cleanup (trim/collapse/optional blank-line removal), case conversion (9 styles: upper/lower/title/sentence/camel/pascal/snake/kebab/CONSTANT, via a camelCase-aware word tokenizer), a Hemingway-style readability analyzer (approximate Flesch-Kincaid grade level from a syllable-counting heuristic, passive-voice and adverb heuristics, long/very-long sentence flagging) with spelling handled by the browser's own native `spellcheck="true"` rather than a bundled dictionary.
+- **Format & Validate** — JSON only (validate/pretty-print/minify via native `JSON.parse`/`stringify`, with a best-effort line/column on parse errors).
+- **Encode/Decode** — Base64 (UTF-8 safe via TextEncoder/Decoder), URL, HTML entities (named + numeric).
+- **Generators/Converters** — UUID v4 (`crypto.randomUUID()`), SHA-1/256/384/512 hashing (`crypto.subtle.digest`, MD5 deliberately excluded — not in Web Crypto and not worth hand-rolling), Unix↔date timestamp conversion, hex→RGB/HSL color conversion.
 
-Not scoped or built yet — needs its own spec pass when it's up next, same as the other three cards got.
+Cut from this pass, not stubbed — the three items that needed a library, a paid API, or ongoing cost:
+1. **JS/SQL/XML/YAML formatting** (needs a real parser/library) — judged a genuine value-add with a bounded path back in, so the spec has vendor-vs-CDN instructions for adding it later without breaking the offline-first identity.
+2. **Real grammar-checking** (needs a third-party API, e.g. LanguageTool) — also judged worth documenting; instructions are in the spec, flagged as a deliberate step away from "nothing leaves your browser" if it's ever added.
+3. **The Hemingway "rewriter"** (needs an LLM API/backend) — not given a recipe, just flagged as a bigger, different-shaped conversation for later if wanted.
+
+Verified: `node --check` on both changed JS files, HTML id-uniqueness check, and a headless Node smoke-test suite (case conversion incl. camelCase/PascalCase roundtrips, whitespace cleanup, Base64 UTF-8 roundtrip incl. emoji, HTML entity roundtrip, hex→RGB→HSL, readability grade-level ordering + passive-voice detection) plus Node's own Web Crypto (`crypto.webcrypto`) checked against a known SHA-256 test vector. Visual check in Safari still needed — see handoff.md.
 
 ## Ideas parked for later
 - Stylish global nav to switch between any tool page from any other tool page (not just back-to-home). Revisit once there are 2-3 tool pages built, so the pattern reflects real navigation needs instead of a guess.

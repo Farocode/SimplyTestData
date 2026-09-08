@@ -7,7 +7,10 @@ function initializeClipboard() {
             const targetEl = document.getElementById(targetId);
             if (!targetEl) return;
 
-            const textToCopy = targetEl.textContent;
+            const textToCopy =
+                "value" in targetEl && (targetEl.tagName === "TEXTAREA" || targetEl.tagName === "INPUT")
+                    ? targetEl.value
+                    : targetEl.textContent;
 
             navigator.clipboard.writeText(textToCopy).then(() => {
                 const originalContent = button.textContent;

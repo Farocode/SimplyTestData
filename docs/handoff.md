@@ -1,42 +1,41 @@
-# Project Nebo — Handoff (for next chat)
+# Handoff
 
-Date: 2026-09-08
+Last updated: 2026-09-08
 
 ## Where things stand
 
-Banking Generator (`banking.html`) is built — the project's third tool page, wired up from the index.html card. **Not yet committed/pushed.** Healthcare's NPI/Medication round from earlier today is also still uncommitted, stacked underneath this.
+Four tool pages now exist: Personal, Healthcare, Banking, and QA Tools (just built). `index.html` links to all four. **Nothing in this round is committed yet** — everything below is sitting as local changes for you to review in GitHub Desktop.
 
-Repo: `~/Documents/GitHub/project-nebo` on the Mac (linked via device bridge). GitHub Pages: farocode.github.io/project-nebo/
+### Uncommitted this round: QA Tools first pass
+- `qa-tools.html` + `js/qa-tools.js` — new page, tabbed Text Tools / Format & Validate / Encode-Decode / Generators-Converters, zero-dependency (native browser APIs only, no CDN, no library, no paid API — per your instruction to cut anything that costs money or relies on external libraries).
+- `css/components.css` — QA Tools styles appended at the bottom (tabs, tool cards, textareas, subtool blocks).
+- `js/clipboard.js` — small tweak so the copy button works on `<textarea>`/`<input>` values, not just the `<span>` values the other three pages use.
+- `index.html` — QA Tools card now links to the real page instead of "Coming Soon".
+- `docs/qa-tools-generator-spec.md` — revised from the original 3-decision-point spec down to the trimmed, zero-cost scope, with a "not building — how to add later" section for the library/API-dependent tools that were cut.
+- `docs/roadmap.md` — QA Tools section rewritten to reflect what actually got built vs. what was deliberately cut (with pointers to the "add later" instructions).
 
-## What just got built (this session, this round)
+Full detail on what's in each tab: see the "DONE, built 2026-09-08" entry under QA Tools in `docs/roadmap.md`.
 
-Spec-then-build per your description (real banks/routing/account, safe mode default-on with all-1s/all-2s/fake name) plus one confirmed addition (payment card field). Spec: `docs/banking-generator-spec.md`, roadmap entry in `docs/roadmap.md`.
+### What's NOT in this pass, on purpose
+JS/SQL/XML/YAML formatting, real grammar-checking, and the Hemingway "rewriter" are all cut — they needed a library, a paid API, or an LLM call. The spec (`docs/qa-tools-generator-spec.md`) has vendor-vs-CDN instructions for the formatting tools and grammar-checking if you ever want them; the rewriter is just flagged as a bigger, separate conversation.
 
-- **Safe Mode** — checked by default, exactly as you asked. Fictional bank name, routing `111111111`, account `2222222222`, placeholder street in NYC or Wilmington DE (your own suggestion, alternated randomly). The Bank dropdown visibly grays out while Safe Mode is on, since it's a no-op then.
-- **Bank → Bank Name/Routing Number, Account Number/Type** — 12 real US banks with real ABA routing numbers, each individually sourced (bank's own site where available, otherwise Wise.com's routing database) — full table with sources is in the spec. As an extra check, all 12 independently passed the real ABA checksum algorithm too. Account numbers are always synthetic even in real mode (no public registry to check against, same logic as SSN in Personal).
-- **Card Network → Card Number/Expiration/CVV** — Visa/Mastercard/Amex/Discover, real BIN prefixes with a correct Luhn check digit, same convention as the official test card numbers payment processors publish. This one's independent of Safe Mode since it's already "obviously not a real account" by construction.
-- **CSV export** — same pattern as the other two pages.
+### Still outstanding from before this round (unchanged)
+- Street field position on Personal Generator (sits on the right, risk with long addresses) — logged, not yet acted on.
+- More street-name word-bank variety — logged, not yet acted on.
+- Identity-row condensing spec (`docs/identity-row-condense-spec.md`) — written, not built.
+- A handful of small nitpicks you said you'd batch up "once all the pages are done" rather than fix one at a time.
 
-Files: `banking.html`, `js/banking.js` (new), `index.html` (Banking card now links to the tool), `docs/banking-generator-spec.md` (new), `docs/roadmap.md`.
+## Verification done this round
+- `node --check` on `js/qa-tools.js` and `js/clipboard.js` — clean.
+- HTML id-uniqueness check on `qa-tools.html` — 50 ids, zero duplicates.
+- Headless Node smoke tests against the pure logic (case conversion incl. round-trips, whitespace cleanup, Base64 UTF-8 round-trip incl. emoji/CJK, HTML entity round-trip, hex→RGB→HSL, syllable/readability sanity checks, passive-voice detection).
+- Node's own Web Crypto (`crypto.webcrypto`, same API surface as the browser) checked against a known SHA-256 test vector and produced a real UUID — confirms the hash/UUID generator logic is correct, since it's the same native API the browser uses.
 
-## Verification done
+## Still needed — visual check
+Same standing gap as every round: this session can't get a live Safari render of the new page. Everything above is verified at the logic/data level, but the actual on-screen layout (tab switching, textarea sizing, the new subtool blocks) hasn't been eyeballed. Worth a look before or right after you push.
 
-- `node --check js/banking.js` — syntax OK
-- HTML div-balance and duplicate-id checks — OK
-- Headless Node smoke test: all 12 routing numbers verified against the real ABA mod-10 checksum (independent of the sourcing); 8,000 generated card numbers (4 networks × 2,000 each) all Luhn-valid with correct length and prefix; Safe Mode checked across 1,000 samples — never produced a real bank name/routing, and correctly overrode an explicit bank selection; real mode checked across 1,000 samples — never produced the safe-mode sentinel values; CSV structure checked.
-- **Not yet done: a visual look in Safari.** Same standing limitation as every round this session.
-
-## Not yet done — needs a look
-
-1. **Commit and push** — this covers both this Banking round and the earlier Healthcare NPI/Medication round today.
-2. **Visual check in Safari**, especially the Safe Mode checkbox/disable behavior and the 4-item Card Network row.
-3. Still open from earlier rounds, untouched: Street/Phone position on Personal, more street name combos, condense the Personal Generator identity rows. See `docs/roadmap.md`'s "Logged for later" sections and `docs/identity-row-condense-spec.md`.
-4. **QA Tools is next** — you gave a first wishlist mid-session (JSON/JS/SQL formatting and validation, spelling/grammar, a Hemingway-style rewriter, whitespace trim, case conversion — capitalize/camelCase/lowercase/etc., and a general "keep it lightweight, no separate apps" principle). Logged in `docs/roadmap.md` under "QA Tools card — wishlist," not scoped or spec'd yet.
-
-## Next up (bigger picture)
-
-Per the roadmap: build out QA Tools (your stated favorite), then a pre-release refactor/cleanup pass across the codebase now that there are three tool pages, and a color/style pass beyond the current white/dark-blue look.
+## Not yet actioned — from your most recent message
+You raised turning the four dashboard cards on `index.html` into a bigger 2x2 grid now that there are four tools, and separately floated maybe not liking a landing page with no tool immediately usable on it. Neither is built — flagging it here since it came in mid-build and deserves its own pass rather than a rushed change bolted onto this one.
 
 ## Dev loop reminder
-
-Sublime Text (edit) → Safari (local preview) → GitHub Desktop (commit/push). Full-file replacement is safer than partial pastes when moving code from chat into Sublime. Mac sleeps when you step away, so the device link drops between sessions — that's expected, not a bug.
+Sublime Text → Safari (local preview) → GitHub Desktop (commit/push). I don't commit or push — that's still on you.

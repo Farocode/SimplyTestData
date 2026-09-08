@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QA Tools | Project Nebo</title>
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+<body class="tool-page">
+
+<div class="subnav">
+    <a href="index.html" class="back-link">&larr; Project Nebo</a>
+</div>
+
+<header class="site-header">
+    <div>
+        <h1>QA Tools</h1>
+        <p>Text, format, encoding, and generator utilities. All local, all free.</p>
+    </div>
+    <button id="themeToggle">
+        🌙
+    </button>
+</header>
+
+<main class="container">
+
+    <div class="qa-tabs" role="tablist">
+        <button class="qa-tab active" data-category="text" role="tab" aria-selected="true">Text Tools</button>
+        <button class="qa-tab" data-category="format" role="tab" aria-selected="false">Format &amp; Validate</button>
+        <button class="qa-tab" data-category="encode" role="tab" aria-selected="false">Encode / Decode</button>
+        <button class="qa-tab" data-category="generate" role="tab" aria-selected="false">Generators / Converters</button>
+    </div>
+
+    <!-- ===================== TEXT TOOLS ===================== -->
+    <section class="qa-category" id="cat-text" data-panel="text">
+
+        <div class="qa-tool">
+            <h3>Whitespace Cleanup</h3>
+            <p class="qa-tool-desc">Trims leading/trailing whitespace on each line and collapses repeated internal spaces.</p>
+            <textarea class="qa-input" id="wsInput" placeholder="Paste text here..."></textarea>
+            <div class="qa-option-row">
+                <label class="symbol-toggle">
+                    <input type="checkbox" id="wsRemoveBlankLines">
+                    Remove blank lines
+                </label>
+            </div>
+            <div class="qa-actions">
+                <button id="wsCleanBtn" class="primary-btn" style="width:auto; margin-top:0;">Clean</button>
+            </div>
+            <div class="qa-output-wrap">
+                <textarea class="qa-output" id="wsOutput" readonly placeholder="Cleaned text will appear here..."></textarea>
+                <button class="copy-btn" data-target="wsOutput" title="Copy">📋</button>
+            </div>
+        </div>
+
+        <div class="qa-tool">
+            <h3>Case Conversion</h3>
+            <p class="qa-tool-desc">Convert text between common casing styles.</p>
+            <textarea class="qa-input" id="caseInput" placeholder="Paste text here..."></textarea>
+            <div class="qa-actions">
+                <button data-case="upper">UPPERCASE</button>
+                <button data-case="lower">lowercase</button>
+                <button data-case="title">Title Case</button>
+                <button data-case="sentence">Sentence case</button>
+                <button data-case="camel">camelCase</button>
+                <button data-case="pascal">PascalCase</button>
+                <button data-case="snake">snake_case</button>
+                <button data-case="kebab">kebab-case</button>
+                <button data-case="constant">CONSTANT_CASE</button>
+            </div>
+            <div class="qa-output-wrap">
+                <textarea class="qa-output" id="caseOutput" readonly placeholder="Converted text will appear here..."></textarea>
+                <button class="copy-btn" data-target="caseOutput" title="Copy">📋</button>
+            </div>
+        </div>
+
+        <div class="qa-tool">
+            <h3>Readability Analyzer</h3>
+            <p class="qa-tool-desc">
+                A rough, Hemingway-style pass: flags long/complex sentences, likely passive voice, adverb-heavy
+                phrasing, and estimates a Flesch-Kincaid grade level. This is an approximation from a simple
+                syllable heuristic, not a claim to match any commercial tool's exact scoring. Spelling is flagged
+                by your browser's own built-in spell-checker (underlined in the box below) rather than a bundled
+                dictionary.
+            </p>
+            <textarea class="qa-input" id="readInput" spellcheck="true" placeholder="Paste a paragraph or two here..."></textarea>
+            <div class="qa-actions">
+                <button id="readAnalyzeBtn" class="primary-btn" style="width:auto; margin-top:0;">Analyze</button>
+            </div>
+            <div class="qa-result" id="readOutput">Results will appear here.</div>
+        </div>
+
+    </section>
+
+    <!-- ===================== FORMAT & VALIDATE ===================== -->
+    <section class="qa-category" id="cat-format" data-panel="format" hidden>
+
+        <div class="qa-tool">
+            <h3>JSON</h3>
+            <p class="qa-tool-desc">Validate, pretty-print, or minify JSON. Uses the browser's native JSON parser.</p>
+            <textarea class="qa-input" id="jsonInput" placeholder="Paste JSON here..."></textarea>
+            <div class="qa-actions">
+                <button id="jsonValidateBtn">Validate</button>
+                <button id="jsonPrettyBtn">Pretty Print</button>
+                <button id="jsonMinifyBtn">Minify</button>
+            </div>
+            <p class="qa-status" id="jsonStatus"></p>
+            <div class="qa-output-wrap">
+                <textarea class="qa-output" id="jsonOutput" readonly placeholder="Result will appear here..."></textarea>
+                <button class="copy-btn" data-target="jsonOutput" title="Copy">📋</button>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- ===================== ENCODE / DECODE ===================== -->
+    <section class="qa-category" id="cat-encode" data-panel="encode" hidden>
+
+        <div class="qa-tool">
+            <h3>Base64</h3>
+            <p class="qa-tool-desc">UTF-8 safe Base64 encode/decode.</p>
+            <textarea class="qa-input" id="b64Input" placeholder="Text or Base64 here..."></textarea>
+            <div class="qa-actions">
+                <button id="b64EncodeBtn">Encode</button>
+                <button id="b64DecodeBtn">Decode</button>
+            </div>
+            <p class="qa-status" id="b64Status"></p>
+            <div class="qa-output-wrap">
+                <textarea class="qa-output" id="b64Output" readonly placeholder="Result will appear here..."></textarea>
+                <button class="copy-btn" data-target="b64Output" title="Copy">📋</button>
+            </div>
+        </div>
+
+        <div class="qa-tool">
+            <h3>URL Encode / Decode</h3>
+            <p class="qa-tool-desc">Percent-encode or decode a string for safe use in a URL.</p>
+            <textarea class="qa-input" id="urlInput" placeholder="Text or encoded URL component here..."></textarea>
+            <div class="qa-actions">
+                <button id="urlEncodeBtn">Encode</button>
+                <button id="urlDecodeBtn">Decode</button>
+            </div>
+            <p class="qa-status" id="urlStatus"></p>
+            <div class="qa-output-wrap">
+                <textarea class="qa-output" id="urlOutput" readonly placeholder="Result will appear here..."></textarea>
+                <button class="copy-btn" data-target="urlOutput" title="Copy">📋</button>
+            </div>
+        </div>
+
+        <div class="qa-tool">
+            <h3>HTML Entities</h3>
+            <p class="qa-tool-desc">Encode/decode the common named entities (&amp;, &lt;, &gt;, quotes) plus numeric entities.</p>
+            <textarea class="qa-input" id="htmlInput" placeholder="Text or HTML-escaped text here..."></textarea>
+            <div class="qa-actions">
+                <button id="htmlEncodeBtn">Encode</button>
+                <button id="htmlDecodeBtn">Decode</button>
+            </div>
+            <div class="qa-output-wrap">
+                <textarea class="qa-output" id="htmlOutput" readonly placeholder="Result will appear here..."></textarea>
+                <button class="copy-btn" data-target="htmlOutput" title="Copy">📋</button>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- ===================== GENERATORS / CONVERTERS ===================== -->
+    <section class="qa-category" id="cat-generate" data-panel="generate" hidden>
+
+        <div class="qa-tool">
+            <h3>UUID</h3>
+            <p class="qa-tool-desc">Generates a random UUID (v4) using the browser's native crypto API.</p>
+            <div class="qa-actions">
+                <button id="uuidGenBtn" class="primary-btn" style="width:auto; margin-top:0;">Generate UUID</button>
+            </div>
+            <div class="field-group stacked" style="border:none; padding:0.75rem 0 0;">
+                <div class="field-value-wrap">
+                    <span id="uuidOutput" class="field-value">—</span>
+                    <button class="copy-btn" data-target="uuidOutput" title="Copy">📋</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="qa-tool">
+            <h3>Hash Generator</h3>
+            <p class="qa-tool-desc">
+                SHA-1/256/384/512 via the browser's native Web Crypto API. SHA-1 is included but flagged legacy —
+                don't use it anywhere security matters. MD5 isn't offered; it's intentionally left out of Web
+                Crypto and not worth hand-rolling here.
+            </p>
+            <textarea class="qa-input" id="hashInput" placeholder="Text to hash..."></textarea>
+            <div class="qa-actions">
+                <button data-hash="SHA-1">SHA-1</button>
+                <button data-hash="SHA-256">SHA-256</button>
+                <button data-hash="SHA-384">SHA-384</button>
+                <button data-hash="SHA-512">SHA-512</button>
+            </div>
+            <div class="qa-output-wrap">
+                <textarea class="qa-output" id="hashOutput" readonly placeholder="Hash will appear here..." style="min-height:60px;"></textarea>
+                <button class="copy-btn" data-target="hashOutput" title="Copy">📋</button>
+            </div>
+        </div>
+
+        <div class="qa-tool">
+            <h3>Timestamp Converter</h3>
+
+            <div class="qa-subtool">
+                <h4>Unix timestamp &rarr; date</h4>
+                <div class="qa-field-row">
+                    <label for="tsUnixInput">Unix seconds</label>
+                    <input type="number" id="tsUnixInput" placeholder="e.g. 1735689600">
+                    <button id="tsToDateBtn">Convert</button>
+                </div>
+                <div class="qa-value-list">
+                    <div class="field-value-wrap">
+                        <span id="tsDateLocalOutput" class="field-value">—</span>
+                        <button class="copy-btn" data-target="tsDateLocalOutput" title="Copy">📋</button>
+                    </div>
+                    <div class="field-value-wrap">
+                        <span id="tsDateIsoOutput" class="field-value">—</span>
+                        <button class="copy-btn" data-target="tsDateIsoOutput" title="Copy">📋</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-subtool">
+                <h4>Date &rarr; Unix timestamp</h4>
+                <div class="qa-field-row">
+                    <label for="tsDateInput">Date &amp; time (your local timezone)</label>
+                    <input type="datetime-local" id="tsDateInput">
+                    <button id="tsToUnixBtn">Convert</button>
+                </div>
+                <div class="field-value-wrap">
+                    <span id="tsUnixOutput" class="field-value">—</span>
+                    <button class="copy-btn" data-target="tsUnixOutput" title="Copy">📋</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="qa-tool">
+            <h3>Color Converter</h3>
+            <p class="qa-tool-desc">Enter a hex color to get its RGB and HSL equivalents.</p>
+            <div class="qa-field-row">
+                <label for="colorHexInput">Hex</label>
+                <input type="text" id="colorHexInput" placeholder="#38bdf8">
+                <button id="colorConvertBtn">Convert</button>
+            </div>
+            <div class="qa-value-list">
+                <div class="field-value-wrap">
+                    <span id="colorRgbOutput" class="field-value">—</span>
+                    <button class="copy-btn" data-target="colorRgbOutput" title="Copy">📋</button>
+                </div>
+                <div class="field-value-wrap">
+                    <span id="colorHslOutput" class="field-value">—</span>
+                    <button class="copy-btn" data-target="colorHslOutput" title="Copy">📋</button>
+                </div>
+            </div>
+            <p class="qa-status" id="colorStatus"></p>
+        </div>
+
+    </section>
+
+</main>
+
+<footer class="site-footer">
+    <p>
+        Project Nebo v0.1.0-beta |
+        Runs locally in your browser
+    </p>
+</footer>
+
+<script src="js/theme.js"></script>
+<script src="js/qa-tools.js"></script>
+<script src="js/clipboard.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        initializeTheme();
+    });
+</script>
+</body>
+</html>
