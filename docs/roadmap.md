@@ -97,13 +97,19 @@ Cut from this pass, not stubbed — the three items that needed a library, a pai
 
 Verified: `node --check` on both changed JS files, HTML id-uniqueness check, and a headless Node smoke-test suite (case conversion incl. camelCase/PascalCase roundtrips, whitespace cleanup, Base64 UTF-8 roundtrip incl. emoji, HTML entity roundtrip, hex→RGB→HSL, readability grade-level ordering + passive-voice detection) plus Node's own Web Crypto (`crypto.webcrypto`) checked against a known SHA-256 test vector. Visual check in Safari still needed — see handoff.md.
 
+**Revised 2026-09-08 — consolidated to one input/output pair.** Per feedback: the original tabbed layout (11 tools each with their own input/output box) became a single two-column workspace instead — one shared input textarea on the left, one shared output textarea on the right, a `<select>` to pick which of the 11 tools the action buttons act on, and a Clear All button. Only UUID hides the input box (nothing to read for it); every other tool reads/writes the same shared pair. All the underlying logic functions are unchanged from the first pass (pure, already verified) — this was a DOM/wiring rewrite, driven by a `TOOLS` config object (one entry per tool: description, placeholder, optional checkbox options, and an array of named actions) so adding a 12th tool later is one config entry, not a new page section.
+
+Re-verified after the rewrite: `node --check`, HTML id-uniqueness (9 ids now, down from 50 — much less DOM per page), and a headless test exercising every tool's every action against representative input (confirms nothing throws and each action returns a sane `{output}`/`{status}` shape), plus a re-check of JSON validate/pretty-print and the SHA-256 known-vector test. Same standing Safari visual-check gap.
+
 ## Ideas parked for later
 - Stylish global nav to switch between any tool page from any other tool page (not just back-to-home). Revisit once there are 2-3 tool pages built, so the pattern reflects real navigation needs instead of a guess.
 
-## Landing page (index.html) redesign — spec written 2026-09-08, not built
-Full spec: `docs/index-redesign-spec.md`. Two ideas, split out since one seems closer to decided:
-1. Bigger 2x2 card grid now that all four tools exist (currently an unpinned auto-fit grid that can go 4-across).
-2. Whether the landing page should have a tool directly usable on it, not just links out — three options laid out (do nothing / a small standalone widget like a UUID generator / an inline-expanding card), with open questions rather than a picked direction.
+## Landing page (index.html) redesign
+Full spec: `docs/index-redesign-spec.md`.
+
+**DONE, built 2026-09-08 — bigger 2x2 card grid.** `.card-grid` now pins to a real 2-column layout above ~700px (was an unpinned auto-fit that could go 4-across on a wide window), single column below it. Cards got bigger — more padding, larger heading, the "Open Tool" button pinned to the bottom of the card via flexbox so all four stay the same height regardless of description length.
+
+**Logged, not built — a tool directly usable on the landing page.** Explicitly held back for now (user: "without the working tools option, we can leave that logged"). Three options remain in the spec (do nothing further / a small standalone widget like a UUID generator / an inline-expanding card) if this gets picked back up later.
 
 ## Variety / dataset expansion
 - DONE — Name dataset expanded from 30/30 to 166 first names / 123 last names, merged from a user-supplied CSV sample (deduped against the original curated list, nothing removed).

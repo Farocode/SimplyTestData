@@ -39,11 +39,23 @@ body.tool-page .container {
     margin-left: auto;
     margin-right: auto;
 }
+/* Pinned to a real 2x2 below, not an auto-fit count that could land
+   4-across on a wide window -- with exactly four tool cards, a
+   deliberate 2x2 reads as "here are the four things this does"
+   rather than a loose row of tiles. Single column stays the mobile
+   fallback below the breakpoint, same philosophy as the tool pages. */
 .card-grid {
     display: grid;
-    grid-template-columns:
-        repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: 1fr;
     gap: 1.5rem;
+    max-width: 900px;
+    margin: 0 auto;
+}
+@media (min-width: 700px) {
+    .card-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+    }
 }
 .site-footer {
     text-align: center;

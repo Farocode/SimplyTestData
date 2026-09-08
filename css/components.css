@@ -2,13 +2,22 @@
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 0.75rem;
-    padding: 1.5rem;
+    padding: 2.25rem 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
 }
 .card h2 {
-    margin-top: 0;
+    margin: 0;
+    font-size: 1.5rem;
 }
 .card p {
     color: var(--text-secondary);
+    margin: 0 0 0.5rem;
+}
+.card .card-link-btn {
+    margin-top: auto;
 }
 button {
     font-size: 1rem;
@@ -299,49 +308,67 @@ button:hover {
     border-color: var(--accent);
     background: var(--accent);
 }
-/* --- QA Tools page ------------------------------------------------- */
 
-.qa-tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
+/* --- QA Tools page --------------------------------------------------
+   One shared input, one shared output -- a tool select picks which of
+   the eleven tools the action buttons in the left column act on, so
+   the page never shows more than one input/output pair at once. */
+
+.qa-workspace {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
 }
-.qa-tab {
-    font-size: 0.9rem;
-    padding: 0.55rem 1rem;
+@media (min-width: 800px) {
+    .qa-workspace {
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        align-items: start;
+    }
 }
-.qa-tab.active {
-    border-color: var(--accent);
-    background: var(--accent);
-    color: var(--background);
-    font-weight: 600;
-}
-.qa-category {
+.qa-input-col,
+.qa-output-col {
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
 }
-.qa-tool {
+.qa-output-col > label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 0.5rem;
+}
+.qa-field-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+.qa-field-row label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-label);
+    flex-shrink: 0;
+}
+.qa-field-row select {
+    flex: 1 1 auto;
+    padding: 0.5rem 0.65rem;
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 0.75rem;
-    padding: 1.5rem;
-}
-.qa-tool h3 {
-    margin: 0 0 0.35rem;
+    border-radius: 0.5rem;
+    color: var(--text-primary);
+    font-size: 0.9rem;
 }
 .qa-tool-desc {
-    margin: 0 0 1rem;
+    margin: 0.4rem 0 0.75rem;
     color: var(--text-secondary);
     font-size: 0.85rem;
 }
 .qa-input,
 .qa-output {
     width: 100%;
-    min-height: 110px;
-    padding: 0.65rem 0.75rem;
-    background: var(--background);
+    min-height: 320px;
+    padding: 0.75rem;
+    background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 0.5rem;
     color: var(--text-primary);
@@ -349,9 +376,6 @@ button:hover {
     font-size: 0.85rem;
     resize: vertical;
     box-sizing: border-box;
-}
-.qa-output {
-    margin-top: 0.75rem;
 }
 .qa-output-wrap {
     position: relative;
@@ -367,6 +391,11 @@ button:hover {
     gap: 0.5rem;
     margin-top: 0.75rem;
 }
+.qa-actions-secondary {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+}
 .qa-actions button {
     font-size: 0.85rem;
     padding: 0.5rem 0.85rem;
@@ -376,12 +405,13 @@ button:hover {
     flex-wrap: wrap;
     align-items: center;
     gap: 0.75rem 1.25rem;
-    margin-top: 0.75rem;
+    margin-top: 0.25rem;
 }
 .qa-status {
     margin: 0.6rem 0 0;
     font-size: 0.8rem;
     color: var(--text-secondary);
+    min-height: 1.1rem;
 }
 .qa-status.valid {
     color: #4ade80;
@@ -389,59 +419,15 @@ button:hover {
 .qa-status.invalid {
     color: #f87171;
 }
-.qa-result {
-    margin-top: 0.75rem;
-    padding: 0.75rem;
-    background: var(--background);
-    border: 1px solid var(--border);
-    border-radius: 0.5rem;
-    font-size: 0.85rem;
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
-    min-height: 1.2rem;
-}
-.qa-subtool {
-    padding-top: 1rem;
-    margin-top: 1rem;
-    border-top: 1px solid var(--border);
-}
-.qa-subtool:first-of-type {
-    padding-top: 0;
-    margin-top: 0;
-    border-top: none;
-}
-.qa-subtool h4 {
-    margin: 0 0 0.6rem;
-    font-size: 0.9rem;
-    color: var(--text-label);
-}
-.qa-field-row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.6rem;
-    margin-bottom: 0.6rem;
-}
-.qa-field-row label {
-    font-size: 0.8rem;
+.qa-footnote {
+    margin: 2rem auto 0;
+    max-width: 900px;
     color: var(--text-secondary);
-    flex-shrink: 0;
+    font-size: 0.8rem;
 }
-.qa-field-row input[type="text"],
-.qa-field-row input[type="number"],
-.qa-field-row input[type="datetime-local"] {
-    padding: 0.4rem 0.55rem;
-    background: var(--background);
-    border: 1px solid var(--border);
-    border-radius: 0.4rem;
-    color: var(--text-primary);
-    font-size: 0.85rem;
-    flex: 1 1 160px;
-    min-width: 0;
-}
-.qa-value-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
+.qa-footnote code {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    background: var(--surface);
+    padding: 0.1rem 0.35rem;
+    border-radius: 0.3rem;
 }

@@ -1,33 +1,18 @@
 /* ============================================================
-   QA Tools — tabbed input -> transform -> output utilities.
+   QA Tools — one shared input, one shared output. The tool
+   select picks which tool the action buttons below the input
+   act on, so the page only ever shows one input/output pair.
    Every tool here runs on native browser APIs only: no CDN
    script, no vendored library, no third-party call. See
    docs/qa-tools-generator-spec.md for the tools deliberately
    left out and how to add them later.
    ============================================================ */
 
-/* ----------------------- Tabs ------------------------------ */
-
-function initializeTabs() {
-    const tabs = document.querySelectorAll(".qa-tab");
-    const panels = document.querySelectorAll(".qa-category");
-
-    tabs.forEach((tab) => {
-        tab.addEventListener("click", () => {
-            const category = tab.getAttribute("data-category");
-
-            tabs.forEach((t) => {
-                t.classList.toggle("active", t === tab);
-                t.setAttribute("aria-selected", t === tab ? "true" : "false");
-            });
-            panels.forEach((panel) => {
-                panel.hidden = panel.getAttribute("data-panel") !== category;
-            });
-        });
-    });
-}
-
-/* ----------------------- Text Tools ------------------------- */
+/* ----------------------- Pure logic --------------------------
+   Everything in this section takes plain values in and returns
+   plain values out -- no DOM. Kept separate from the wiring below
+   so it stays unit-testable headlessly (see the smoke tests run
+   against this file during development). */
 
 function cleanWhitespace(text, removeBlankLines) {
     const lines = text
@@ -39,17 +24,6 @@ function cleanWhitespace(text, removeBlankLines) {
         : lines;
 
     return filtered.join("\n");
-}
-
-function initializeWhitespaceCleanup() {
-    const input = document.getElementById("wsInput");
-    const output = document.getElementById("wsOutput");
-    const removeBlankLines = document.getElementById("wsRemoveBlankLines");
-    const btn = document.getElementById("wsCleanBtn");
-
-    btn.addEventListener("click", () => {
-        output.value = cleanWhitespace(input.value, removeBlankLines.checked);
-    });
 }
 
 /* splitWords(): tokenizes text for the "programmatic" casing
@@ -107,18 +81,6 @@ function convertCase(text, style) {
         default:
             return text;
     }
-}
-
-function initializeCaseConversion() {
-    const input = document.getElementById("caseInput");
-    const output = document.getElementById("caseOutput");
-    const buttons = document.querySelectorAll("[data-case]");
-
-    buttons.forEach((btn) => {
-        btn.addEventListener("click", () => {
-            output.value = convertCase(input.value, btn.getAttribute("data-case"));
-        });
-    });
 }
 
 /* countSyllables(): a heuristic (vowel-group counting with common
@@ -189,7 +151,7 @@ function analyzeReadability(text) {
 
 function formatReadabilityResult(result) {
     if (result.wordCount === 0) {
-        return "Type or paste some text above, then click Analyze.";
+        return "Type or paste some text on the left, then click Analyze.";
     }
 
     const lines = [];
@@ -226,19 +188,6 @@ function formatReadabilityResult(result) {
     return lines.join("\n");
 }
 
-function initializeReadabilityAnalyzer() {
-    const input = document.getElementById("readInput");
-    const output = document.getElementById("readOutput");
-    const btn = document.getElementById("readAnalyzeBtn");
-
-    btn.addEventListener("click", () => {
-        const result = analyzeReadability(input.value);
-        output.textContent = formatReadabilityResult(result);
-    });
-}
-
-/* ----------------------- Format & Validate ------------------- */
-
 function getJsonErrorLocation(text, message) {
     const posMatch = message.match(/position (\d+)/i);
     if (posMatch) {
@@ -255,62 +204,6 @@ function getJsonErrorLocation(text, message) {
     return null;
 }
 
-function setJsonStatus(message, isValid) {
-    const status = document.getElementById("jsonStatus");
-    status.textContent = message;
-    status.classList.remove("valid", "invalid");
-    if (isValid === true) status.classList.add("valid");
-    if (isValid === false) status.classList.add("invalid");
-}
-
-function initializeJsonTools() {
-    const input = document.getElementById("jsonInput");
-    const output = document.getElementById("jsonOutput");
-
-    document.getElementById("jsonValidateBtn").addEventListener("click", () => {
-        try {
-            JSON.parse(input.value);
-            setJsonStatus("Valid JSON.", true);
-        } catch (err) {
-            const loc = getJsonErrorLocation(input.value, err.message);
-            setJsonStatus(
-                loc ? `Invalid JSON — ${err.message} (${loc})` : `Invalid JSON — ${err.message}`,
-                false
-            );
-        }
-    });
-
-    document.getElementById("jsonPrettyBtn").addEventListener("click", () => {
-        try {
-            const parsed = JSON.parse(input.value);
-            output.value = JSON.stringify(parsed, null, 2);
-            setJsonStatus("Valid JSON — pretty-printed below.", true);
-        } catch (err) {
-            const loc = getJsonErrorLocation(input.value, err.message);
-            setJsonStatus(
-                loc ? `Invalid JSON — ${err.message} (${loc})` : `Invalid JSON — ${err.message}`,
-                false
-            );
-        }
-    });
-
-    document.getElementById("jsonMinifyBtn").addEventListener("click", () => {
-        try {
-            const parsed = JSON.parse(input.value);
-            output.value = JSON.stringify(parsed);
-            setJsonStatus("Valid JSON — minified below.", true);
-        } catch (err) {
-            const loc = getJsonErrorLocation(input.value, err.message);
-            setJsonStatus(
-                loc ? `Invalid JSON — ${err.message} (${loc})` : `Invalid JSON — ${err.message}`,
-                false
-            );
-        }
-    });
-}
-
-/* ----------------------- Encode / Decode --------------------- */
-
 function utf8ToBase64(str) {
     const bytes = new TextEncoder().encode(str);
     let binary = "";
@@ -324,50 +217,6 @@ function base64ToUtf8(str) {
     const binary = atob(str);
     const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
     return new TextDecoder().decode(bytes);
-}
-
-function initializeBase64Tool() {
-    const input = document.getElementById("b64Input");
-    const output = document.getElementById("b64Output");
-    const status = document.getElementById("b64Status");
-
-    document.getElementById("b64EncodeBtn").addEventListener("click", () => {
-        try {
-            output.value = utf8ToBase64(input.value);
-            status.textContent = "";
-        } catch (err) {
-            status.textContent = `Couldn't encode: ${err.message}`;
-        }
-    });
-
-    document.getElementById("b64DecodeBtn").addEventListener("click", () => {
-        try {
-            output.value = base64ToUtf8(input.value);
-            status.textContent = "";
-        } catch (err) {
-            status.textContent = "That doesn't look like valid Base64.";
-        }
-    });
-}
-
-function initializeUrlTool() {
-    const input = document.getElementById("urlInput");
-    const output = document.getElementById("urlOutput");
-    const status = document.getElementById("urlStatus");
-
-    document.getElementById("urlEncodeBtn").addEventListener("click", () => {
-        output.value = encodeURIComponent(input.value);
-        status.textContent = "";
-    });
-
-    document.getElementById("urlDecodeBtn").addEventListener("click", () => {
-        try {
-            output.value = decodeURIComponent(input.value);
-            status.textContent = "";
-        } catch (err) {
-            status.textContent = "That doesn't look like a valid encoded URL component.";
-        }
-    });
 }
 
 const HTML_NAMED_ENTITIES = [
@@ -400,77 +249,10 @@ function decodeHtmlEntities(text) {
     return result;
 }
 
-function initializeHtmlEntityTool() {
-    const input = document.getElementById("htmlInput");
-    const output = document.getElementById("htmlOutput");
-
-    document.getElementById("htmlEncodeBtn").addEventListener("click", () => {
-        output.value = encodeHtmlEntities(input.value);
-    });
-
-    document.getElementById("htmlDecodeBtn").addEventListener("click", () => {
-        output.value = decodeHtmlEntities(input.value);
-    });
-}
-
-/* ----------------------- Generators / Converters -------------- */
-
-function initializeUuidGenerator() {
-    const output = document.getElementById("uuidOutput");
-    document.getElementById("uuidGenBtn").addEventListener("click", () => {
-        output.textContent = crypto.randomUUID();
-    });
-}
-
 function bufferToHex(buffer) {
     return Array.from(new Uint8Array(buffer))
         .map((b) => b.toString(16).padStart(2, "0"))
         .join("");
-}
-
-function initializeHashGenerator() {
-    const input = document.getElementById("hashInput");
-    const output = document.getElementById("hashOutput");
-    const buttons = document.querySelectorAll("[data-hash]");
-
-    buttons.forEach((btn) => {
-        btn.addEventListener("click", async () => {
-            const algorithm = btn.getAttribute("data-hash");
-            const data = new TextEncoder().encode(input.value);
-            const digest = await crypto.subtle.digest(algorithm, data);
-            output.value = bufferToHex(digest);
-        });
-    });
-}
-
-function initializeTimestampConverter() {
-    const unixInput = document.getElementById("tsUnixInput");
-    const dateLocalOutput = document.getElementById("tsDateLocalOutput");
-    const dateIsoOutput = document.getElementById("tsDateIsoOutput");
-
-    document.getElementById("tsToDateBtn").addEventListener("click", () => {
-        const seconds = Number(unixInput.value);
-        if (!Number.isFinite(seconds)) {
-            dateLocalOutput.textContent = "Enter a valid number of seconds.";
-            dateIsoOutput.textContent = "—";
-            return;
-        }
-        const date = new Date(seconds * 1000);
-        dateLocalOutput.textContent = date.toString();
-        dateIsoOutput.textContent = date.toISOString();
-    });
-
-    const dateInput = document.getElementById("tsDateInput");
-    const unixOutput = document.getElementById("tsUnixOutput");
-
-    document.getElementById("tsToUnixBtn").addEventListener("click", () => {
-        if (!dateInput.value) {
-            unixOutput.textContent = "Pick a date and time first.";
-            return;
-        }
-        const date = new Date(dateInput.value);
-        unixOutput.textContent = String(Math.floor(date.getTime() / 1000));
-    });
 }
 
 function hexToRgb(hex) {
@@ -521,42 +303,336 @@ function rgbToHsl({ r, g, b }) {
     };
 }
 
-function initializeColorConverter() {
-    const hexInput = document.getElementById("colorHexInput");
-    const rgbOutput = document.getElementById("colorRgbOutput");
-    const hslOutput = document.getElementById("colorHslOutput");
-    const status = document.getElementById("colorStatus");
+/* ----------------------- Tool config ---------------------------
+   One entry per tool in the select. `needsInput: false` hides the
+   shared textarea (only UUID has nothing to read). `options` render
+   as checkboxes above the action buttons. Each action's `run`
+   receives (inputText, optionValues) and returns either a plain
+   string (written to output, status cleared) or
+   { output?, status?, statusClass? } -- output is left untouched
+   when omitted, so e.g. JSON's Validate button can report a status
+   without overwriting whatever's already in the output box. `run`
+   may return a Promise (the hash tool's crypto.subtle.digest is
+   async). */
 
-    document.getElementById("colorConvertBtn").addEventListener("click", () => {
-        const rgb = hexToRgb(hexInput.value);
-        if (!rgb) {
-            status.textContent = "Enter a valid hex color, e.g. #38bdf8 or #fff.";
-            rgbOutput.textContent = "—";
-            hslOutput.textContent = "—";
-            return;
-        }
-        status.textContent = "";
-        const hsl = rgbToHsl(rgb);
-        rgbOutput.textContent = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
-        hslOutput.textContent = `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
-    });
+const TOOLS = {
+    whitespace: {
+        desc: "Trims leading/trailing whitespace on each line and collapses repeated internal spaces.",
+        placeholder: "Paste text here...",
+        options: [{ id: "wsRemoveBlankLines", label: "Remove blank lines" }],
+        actions: [
+            {
+                label: "Clean",
+                run: (input, opts) => cleanWhitespace(input, Boolean(opts.wsRemoveBlankLines)),
+            },
+        ],
+    },
+    case: {
+        desc: "Convert text between common casing styles.",
+        placeholder: "Paste text here...",
+        actions: [
+            { label: "UPPERCASE", run: (input) => convertCase(input, "upper") },
+            { label: "lowercase", run: (input) => convertCase(input, "lower") },
+            { label: "Title Case", run: (input) => convertCase(input, "title") },
+            { label: "Sentence case", run: (input) => convertCase(input, "sentence") },
+            { label: "camelCase", run: (input) => convertCase(input, "camel") },
+            { label: "PascalCase", run: (input) => convertCase(input, "pascal") },
+            { label: "snake_case", run: (input) => convertCase(input, "snake") },
+            { label: "kebab-case", run: (input) => convertCase(input, "kebab") },
+            { label: "CONSTANT_CASE", run: (input) => convertCase(input, "constant") },
+        ],
+    },
+    readability: {
+        desc: "A rough, Hemingway-style pass: flags long/complex sentences, likely passive voice, adverb-heavy phrasing, and estimates a Flesch-Kincaid grade level from a simple syllable heuristic -- an approximation, not a claim to match any commercial tool's exact scoring. Spelling is flagged by your browser's own built-in spell-checker (underlined in the box) rather than a bundled dictionary.",
+        placeholder: "Paste a paragraph or two here...",
+        inputSpellcheck: true,
+        actions: [
+            { label: "Analyze", run: (input) => formatReadabilityResult(analyzeReadability(input)) },
+        ],
+    },
+    json: {
+        desc: "Validate, pretty-print, or minify JSON using the browser's native JSON parser.",
+        placeholder: "Paste JSON here...",
+        actions: [
+            {
+                label: "Validate",
+                run: (input) => {
+                    try {
+                        JSON.parse(input);
+                        return { status: "Valid JSON.", statusClass: "valid" };
+                    } catch (err) {
+                        return jsonErrorResult(input, err);
+                    }
+                },
+            },
+            {
+                label: "Pretty Print",
+                run: (input) => {
+                    try {
+                        const parsed = JSON.parse(input);
+                        return {
+                            output: JSON.stringify(parsed, null, 2),
+                            status: "Valid JSON — pretty-printed below.",
+                            statusClass: "valid",
+                        };
+                    } catch (err) {
+                        return jsonErrorResult(input, err);
+                    }
+                },
+            },
+            {
+                label: "Minify",
+                run: (input) => {
+                    try {
+                        const parsed = JSON.parse(input);
+                        return {
+                            output: JSON.stringify(parsed),
+                            status: "Valid JSON — minified below.",
+                            statusClass: "valid",
+                        };
+                    } catch (err) {
+                        return jsonErrorResult(input, err);
+                    }
+                },
+            },
+        ],
+    },
+    base64: {
+        desc: "UTF-8 safe Base64 encode/decode.",
+        placeholder: "Text or Base64 here...",
+        actions: [
+            {
+                label: "Encode",
+                run: (input) => {
+                    try {
+                        return utf8ToBase64(input);
+                    } catch (err) {
+                        return { status: `Couldn't encode: ${err.message}`, statusClass: "invalid" };
+                    }
+                },
+            },
+            {
+                label: "Decode",
+                run: (input) => {
+                    try {
+                        return base64ToUtf8(input);
+                    } catch (err) {
+                        return { status: "That doesn't look like valid Base64.", statusClass: "invalid" };
+                    }
+                },
+            },
+        ],
+    },
+    url: {
+        desc: "Percent-encode or decode a string for safe use in a URL.",
+        placeholder: "Text or encoded URL component here...",
+        actions: [
+            { label: "Encode", run: (input) => encodeURIComponent(input) },
+            {
+                label: "Decode",
+                run: (input) => {
+                    try {
+                        return decodeURIComponent(input);
+                    } catch (err) {
+                        return {
+                            status: "That doesn't look like a valid encoded URL component.",
+                            statusClass: "invalid",
+                        };
+                    }
+                },
+            },
+        ],
+    },
+    html: {
+        desc: "Encode/decode the common named entities (&amp;, &lt;, &gt;, quotes) plus numeric entities.",
+        placeholder: "Text or HTML-escaped text here...",
+        actions: [
+            { label: "Encode", run: (input) => encodeHtmlEntities(input) },
+            { label: "Decode", run: (input) => decodeHtmlEntities(input) },
+        ],
+    },
+    uuid: {
+        desc: "Generates a random UUID (v4) using the browser's native crypto API.",
+        needsInput: false,
+        actions: [{ label: "Generate", run: () => crypto.randomUUID() }],
+    },
+    hash: {
+        desc: "SHA-1/256/384/512 via the browser's native Web Crypto API. SHA-1 is included but flagged legacy -- don't use it anywhere security matters. MD5 isn't offered; it's intentionally left out of Web Crypto and not worth hand-rolling here.",
+        placeholder: "Text to hash...",
+        actions: [
+            { label: "SHA-1", run: (input) => hashText(input, "SHA-1") },
+            { label: "SHA-256", run: (input) => hashText(input, "SHA-256") },
+            { label: "SHA-384", run: (input) => hashText(input, "SHA-384") },
+            { label: "SHA-512", run: (input) => hashText(input, "SHA-512") },
+        ],
+    },
+    timestamp: {
+        desc: "Convert between a Unix timestamp (seconds) and a human-readable date. Pick a direction below -- for \"Date → Unix\", type a date your browser can parse, e.g. 2026-09-08T14:30 or 2026-09-08 14:30:00.",
+        placeholder: "e.g. 1735689600  or  2026-09-08T14:30",
+        actions: [
+            {
+                label: "Unix → Date",
+                run: (input) => {
+                    const seconds = Number(input.trim());
+                    if (!Number.isFinite(seconds) || input.trim() === "") {
+                        return { status: "Enter a valid number of seconds.", statusClass: "invalid" };
+                    }
+                    const date = new Date(seconds * 1000);
+                    return {
+                        output: `Local: ${date.toString()}\nISO:   ${date.toISOString()}`,
+                        status: "",
+                        statusClass: "",
+                    };
+                },
+            },
+            {
+                label: "Date → Unix",
+                run: (input) => {
+                    if (!input.trim()) {
+                        return { status: "Enter a date and time first.", statusClass: "invalid" };
+                    }
+                    const date = new Date(input.trim());
+                    if (Number.isNaN(date.getTime())) {
+                        return { status: "That doesn't look like a date your browser can parse.", statusClass: "invalid" };
+                    }
+                    return {
+                        output: String(Math.floor(date.getTime() / 1000)),
+                        status: "",
+                        statusClass: "",
+                    };
+                },
+            },
+        ],
+    },
+    color: {
+        desc: "Enter a hex color to get its RGB and HSL equivalents.",
+        placeholder: "#38bdf8 or #fff",
+        actions: [
+            {
+                label: "Convert",
+                run: (input) => {
+                    const rgb = hexToRgb(input);
+                    if (!rgb) {
+                        return { status: "Enter a valid hex color, e.g. #38bdf8 or #fff.", statusClass: "invalid" };
+                    }
+                    const hsl = rgbToHsl(rgb);
+                    return {
+                        output: `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})\nhsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`,
+                        status: "",
+                        statusClass: "",
+                    };
+                },
+            },
+        ],
+    },
+};
+
+function jsonErrorResult(text, err) {
+    const loc = getJsonErrorLocation(text, err.message);
+    return {
+        status: loc ? `Invalid JSON — ${err.message} (${loc})` : `Invalid JSON — ${err.message}`,
+        statusClass: "invalid",
+    };
 }
 
-/* ----------------------- Init --------------------------------- */
+async function hashText(input, algorithm) {
+    const data = new TextEncoder().encode(input);
+    const digest = await crypto.subtle.digest(algorithm, data);
+    return bufferToHex(digest);
+}
+
+/* ----------------------- DOM wiring ----------------------------- */
 
 function initializeQaTools() {
-    initializeTabs();
-    initializeWhitespaceCleanup();
-    initializeCaseConversion();
-    initializeReadabilityAnalyzer();
-    initializeJsonTools();
-    initializeBase64Tool();
-    initializeUrlTool();
-    initializeHtmlEntityTool();
-    initializeUuidGenerator();
-    initializeHashGenerator();
-    initializeTimestampConverter();
-    initializeColorConverter();
+    const toolSelect = document.getElementById("toolSelect");
+    const toolDesc = document.getElementById("toolDesc");
+    const qaInput = document.getElementById("qaInput");
+    const qaOptions = document.getElementById("qaOptions");
+    const qaActions = document.getElementById("qaActions");
+    const qaOutput = document.getElementById("qaOutput");
+    const qaStatus = document.getElementById("qaStatus");
+    const clearAllBtn = document.getElementById("clearAllBtn");
+
+    function setStatus(message, statusClass) {
+        qaStatus.textContent = message || "";
+        qaStatus.classList.remove("valid", "invalid");
+        if (statusClass) qaStatus.classList.add(statusClass);
+    }
+
+    function renderTool(key) {
+        const tool = TOOLS[key];
+
+        toolDesc.textContent = tool.desc;
+        qaInput.placeholder = tool.placeholder || "";
+        qaInput.hidden = tool.needsInput === false;
+        qaInput.spellcheck = Boolean(tool.inputSpellcheck);
+
+        qaOptions.innerHTML = "";
+        if (tool.options && tool.options.length > 0) {
+            qaOptions.hidden = false;
+            tool.options.forEach((opt) => {
+                const label = document.createElement("label");
+                label.className = "symbol-toggle";
+                const checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.id = opt.id;
+                label.appendChild(checkbox);
+                label.appendChild(document.createTextNode(opt.label));
+                qaOptions.appendChild(label);
+            });
+        } else {
+            qaOptions.hidden = true;
+        }
+
+        qaActions.innerHTML = "";
+        tool.actions.forEach((action) => {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.textContent = action.label;
+            btn.addEventListener("click", () => runAction(key, action));
+            qaActions.appendChild(btn);
+        });
+
+        setStatus("", "");
+    }
+
+    function collectOptions(tool) {
+        const values = {};
+        (tool.options || []).forEach((opt) => {
+            const el = document.getElementById(opt.id);
+            values[opt.id] = el ? el.checked : false;
+        });
+        return values;
+    }
+
+    async function runAction(key, action) {
+        const tool = TOOLS[key];
+        const inputText = tool.needsInput === false ? "" : qaInput.value;
+        const opts = collectOptions(tool);
+
+        const raw = await action.run(inputText, opts);
+        const result = typeof raw === "string" ? { output: raw } : raw || {};
+
+        if ("output" in result) {
+            qaOutput.value = result.output;
+        }
+        setStatus(result.status, result.statusClass);
+    }
+
+    toolSelect.addEventListener("change", () => {
+        renderTool(toolSelect.value);
+    });
+
+    clearAllBtn.addEventListener("click", () => {
+        qaInput.value = "";
+        qaOutput.value = "";
+        setStatus("", "");
+        qaOptions.querySelectorAll("input[type=checkbox]").forEach((cb) => {
+            cb.checked = false;
+        });
+    });
+
+    renderTool(toolSelect.value);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -572,6 +648,7 @@ if (typeof module !== "undefined") {
         countSyllables,
         splitSentences,
         analyzeReadability,
+        formatReadabilityResult,
         getJsonErrorLocation,
         utf8ToBase64,
         base64ToUtf8,
@@ -580,5 +657,6 @@ if (typeof module !== "undefined") {
         bufferToHex,
         hexToRgb,
         rgbToHsl,
+        TOOLS,
     };
 }
