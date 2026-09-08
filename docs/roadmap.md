@@ -34,13 +34,20 @@
 - Build out Banking card
 - Build out QA Tools card (JSON/XML/SQL formatters)
 
+## Logged for later (not started) — from 2026-09-08 feedback
+
+- **Street field position.** User's read: Street "sits precariously on the right side" and can run afoul of longer generated addresses. Root cause: Phone and Street are plain (non-stacked) field-groups that happen to land in the same grid row (Phone in the left ~400px column, Street in the right one) purely by DOM order/grid auto-placement — not because they're paired on purpose. That confines Street to a narrow column, the same underlying issue Full Name and Email each had before their full-width fixes.
+  - Likely direction (not decided/built): give Street its own full-width row, same treatment as Email. That alone would orphan Phone into an empty half-row (the exact bug already fixed twice — Email, and the CSV export row) — so Phone would need the same full-width treatment too, not just Street alone. Tradeoff: costs one extra row of vertical height on desktop (Phone+Street go from one combined row to two full rows) in exchange for giving Street real room. Needs a decision before building, and the usual Safari check after.
+- **More street name combinations.** Current word banks: 12 adjectives × 10 nouns × 7 suffixes = 840 possible combinations (`STREET_ADJECTIVES`, `STREET_NOUNS`, `STREET_SUFFIXES` in personal.js), deliberately excluding "Main" and any other real/common street names to avoid accidentally generating a real address. User confirmed a modest expansion of the word banks would be welcome — no specific count requested yet, just logged as wanting more variety, with the same real-address-avoidance care as the existing lists.
+- **Condense First/Last/Full Name/SSN rows.** Spec written, not built: see `docs/identity-row-condense-spec.md`.
+
 ## Ideas parked for later
 - Stylish global nav to switch between any tool page from any other tool page (not just back-to-home). Revisit once there are 2-3 tool pages built, so the pattern reflects real navigation needs instead of a guess.
 
 ## Variety / dataset expansion
 - DONE — Name dataset expanded from 30/30 to 166 first names / 123 last names, merged from a user-supplied CSV sample (deduped against the original curated list, nothing removed).
   - DONE — Weighted pick to fix the skew: split into `FIRST_NAMES_BALANCED`/`FIRST_NAMES_EXTRA` (30/136) and `LAST_NAMES_BALANCED`/`LAST_NAMES_EXTRA` (30/93) — the original hand-balanced 30/30 vs. the CSV-merged batch that skews toward common Western/Hispanic names. `pickName()` picks one of the two pools with equal 50/50 probability, then draws randomly within it, so the small balanced pool isn't drowned out by the much larger skewed one. Verified: ~50/50 draw rate across 20,000 samples, `generatePerson()` still produces correct records end to end.
-- More street name word-bank variety (adjectives/nouns/suffixes).
+- More street name word-bank variety (adjectives/nouns/suffixes) — re-flagged 2026-09-08, see "Logged for later" below for current combo count and constraints.
 - More phone exchange variety within the existing N11-avoidance rule.
 - DONE — Address dataset expanded from 1 verified city/zip per state to up to 75 per state (all ~22 for DC, which is genuinely one city), sourced from the official USPS ZIP locale list (docs/data/ZIP_Locale_Detail.csv). City/zip now lives in a new `STATE_CITIES` object in personal.js; `STATE_DATA` slimmed down to just name + area code. Area code stays one per state (unchanged, per-state accuracy was already good enough) — phone generation logic untouched.
 
@@ -55,7 +62,8 @@
 - Full refactor/cleanup pass (section grouping, consistent comments) — planned after more cards are built, not after every feature.
 
 ## Email full-width fix
-- DONE — Same bug as Full Name: Email was a plain (non-stacked) field-group with no plain sibling to pair with (City/State/Zip stacked before it, Username/Password stacked after it), so it landed alone in a single ~400px grid cell with an empty cell beside it — not the full width it visually appeared to have. Now spans the full row like the other fixed rows. Checked the rest of the field order too — no other orphaned plain rows remain (First/Last and Phone/Street are properly paired, everything else is full-width).
+- DONE — Same bug as Full Name: Email was a plain (non-stacked) field-group with no plain sibling to pair with (City/State/Zip stacked before it, Username/Password stacked after it), so it landed alone in a single ~400px grid cell with an empty cell beside it — not the full width it visually appeared to have. Now spans the full row like the other fixed rows.
+- Note (2026-09-08): Phone/Street being "properly paired" turned out to still be a problem — see "Logged for later" below. Pairing them avoided the orphaned-cell bug, but it confines Street to a narrow ~400px column, which is cramped for longer generated addresses.
 
 ## Export to CSV (done)
 - Spec: docs/csv-export-spec.md. Exports all fields as they appear, with a record-count input (default 1, max 500) next to a new Export CSV button below Generate.
