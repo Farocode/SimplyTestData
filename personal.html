@@ -44,20 +44,26 @@
         </div>
 
         <!-- Full Name and SSN aren't related data — just two short values
-             paired to save a row, same space-saving idea as the others. -->
-        <div class="field-group">
-            <div class="field-item">
-                <label for="fullName">Full Name</label>
-                <div class="field-value-wrap">
-                    <span id="fullName" class="field-value">—</span>
-                    <button class="copy-btn" data-target="fullName" title="Copy">📋</button>
+             paired to save a row, same space-saving idea as the others.
+             "stacked" here is only to get the full-row grid span (like
+             the other paired rows) — without it, this row was confined
+             to a single ~400px grid cell instead of the full panel
+             width, which was forcing longer full names to wrap. -->
+        <div class="field-group stacked">
+            <div class="field-row">
+                <div class="field-item">
+                    <label for="fullName">Full Name</label>
+                    <div class="field-value-wrap">
+                        <span id="fullName" class="field-value">—</span>
+                        <button class="copy-btn" data-target="fullName" title="Copy">📋</button>
+                    </div>
                 </div>
-            </div>
-            <div class="field-item">
-                <label for="ssn">SSN</label>
-                <div class="field-value-wrap">
-                    <span id="ssn" class="field-value">—</span>
-                    <button class="copy-btn" data-target="ssn" title="Copy">📋</button>
+                <div class="field-item">
+                    <label for="ssn">SSN</label>
+                    <div class="field-value-wrap">
+                        <span id="ssn" class="field-value">—</span>
+                        <button class="copy-btn" data-target="ssn" title="Copy">📋</button>
+                    </div>
                 </div>
             </div>
         </div>

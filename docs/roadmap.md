@@ -20,6 +20,10 @@
 - OPEN — User isn't sure yet whether the State control's position (currently directly under the City/State/Zip row) is right, wants to reconsider later. No change made.
 - DONE — SSN moved off its own row onto Full Name's row (right side) — not a data relationship, just two short values sharing space, same idea as elsewhere.
 - DONE — Age Range control reordered to lead the DOB/Age row (was DOB, Age, Age Range → now Age Range, DOB, Age) so it reads as the control that produces the two fields after it.
+- DONE — Found and fixed the actual cause of Full Name wrapping to a second line despite looking like it had room: the Full Name+SSN row wasn't spanning the full panel width on desktop — it was confined to a single ~400px grid cell (only groups with a control-row got the full-width span before), so it never actually got the space next to it that just looked empty on the page. Now spans full width like the other paired rows.
+
+## Row alignment — open question, not started
+- User's read: the first three rows (First Name, Last Name, Full Name+SSN) feel visually inconsistent / "each doing its own thing" compared to the more clearly-grouped rows below. Not decided what the fix is yet — flagged as worth reconsidering, possibly pairing First Name + Last Name the same way Full Name + SSN was paired, but that's speculation, not a request. No change made.
 
 ## Next up
 - Build out Healthcare card (MBI, Medicare Part A/B dates, coverage info)
