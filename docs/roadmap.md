@@ -14,6 +14,12 @@
 
 ## Field grouping
 - DONE — Date of Birth + Age grouped into one row (same underlying data), and City + State + Zip grouped into one row (one location). Each related value gets a compact label-over-value block (new `.field-item` class) instead of the full label-left/value-right row, so they can sit side by side. Rows wrap to fewer items per line on narrow screens automatically (flex-wrap, no separate breakpoint needed) rather than needing to be full-width or fully stacked — matches "same general area if not the same row." Age-range and state-select controls still live directly under their respective group.
+- DONE — Age Range control moved from a control-row below DOB/Age into the same row as a third compact item (DOB, Age, and Age Range are all short/fixed values, so all three fit together). Bounds changed from 0-120 to 0-117.
+- DONE — Username + Password grouped into one row, same pattern as DOB/Age and City/State/Zip.
+- DONE — `.field-control-row` (Password's "Length & symbols", State's "Select state") now shrinks to its content width instead of stretching the full row — was noticeably oversized for what it holds.
+- OPEN — User isn't sure yet whether the State control's position (currently directly under the City/State/Zip row) is right, wants to reconsider later. No change made.
+- DONE — SSN moved off its own row onto Full Name's row (right side) — not a data relationship, just two short values sharing space, same idea as elsewhere.
+- DONE — Age Range control reordered to lead the DOB/Age row (was DOB, Age, Age Range → now Age Range, DOB, Age) so it reads as the control that produces the two fields after it.
 
 ## Next up
 - Build out Healthcare card (MBI, Medicare Part A/B dates, coverage info)

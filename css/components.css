@@ -192,9 +192,9 @@ button:hover {
     justify-content: flex-start;
 }
 .field-control-row {
-    display: flex;
+    display: inline-flex;
+    align-self: flex-start;
     flex-wrap: wrap;
-    justify-content: space-between;
     align-items: center;
     gap: 0.5rem 0.75rem;
     padding: 0.5rem 0.75rem;

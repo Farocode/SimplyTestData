@@ -4206,7 +4206,7 @@ function getAgeRange() {
     let max = parseInt(maxInput.value, 10);
 
     if (isNaN(min) || min < 0) min = 0;
-    if (isNaN(max) || max > 120) max = 120;
+    if (isNaN(max) || max > 117) max = 117;
     if (min > max) {
         const temp = min;
         min = max;

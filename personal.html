@@ -43,17 +43,38 @@
             </div>
         </div>
 
+        <!-- Full Name and SSN aren't related data — just two short values
+             paired to save a row, same space-saving idea as the others. -->
         <div class="field-group">
-            <label for="fullName">Full Name</label>
-            <div class="field-value-wrap">
-                <span id="fullName" class="field-value">—</span>
-                <button class="copy-btn" data-target="fullName" title="Copy">📋</button>
+            <div class="field-item">
+                <label for="fullName">Full Name</label>
+                <div class="field-value-wrap">
+                    <span id="fullName" class="field-value">—</span>
+                    <button class="copy-btn" data-target="fullName" title="Copy">📋</button>
+                </div>
+            </div>
+            <div class="field-item">
+                <label for="ssn">SSN</label>
+                <div class="field-value-wrap">
+                    <span id="ssn" class="field-value">—</span>
+                    <button class="copy-btn" data-target="ssn" title="Copy">📋</button>
+                </div>
             </div>
         </div>
 
-        <!-- DOB and Age are the same underlying data — grouped into one row. -->
+        <!-- Age Range control leads, DOB/Age follow — reads like the
+             control that produces them, same order as State leading
+             into City/Zip below. -->
         <div class="field-group stacked">
             <div class="field-row">
+                <div class="field-item">
+                    <span class="control-label">Age Range</span>
+                    <div class="age-range-inputs">
+                        <input type="number" id="minAge" value="18" min="0" max="117">
+                        <span>to</span>
+                        <input type="number" id="maxAge" value="65" min="0" max="117">
+                    </div>
+                </div>
                 <div class="field-item">
                     <label for="dob">Date of Birth</label>
                     <div class="field-value-wrap">
@@ -68,22 +89,6 @@
                         <button class="copy-btn" data-target="age" title="Copy">📋</button>
                     </div>
                 </div>
-            </div>
-            <div class="field-control-row">
-                <span class="control-label">Age range (also sets DOB)</span>
-                <div class="age-range-inputs">
-                    <input type="number" id="minAge" value="18" min="0" max="120">
-                    <span>to</span>
-                    <input type="number" id="maxAge" value="65" min="0" max="120">
-                </div>
-            </div>
-        </div>
-
-        <div class="field-group">
-            <label for="ssn">SSN</label>
-            <div class="field-value-wrap">
-                <span id="ssn" class="field-value">—</span>
-                <button class="copy-btn" data-target="ssn" title="Copy">📋</button>
             </div>
         </div>
 
@@ -145,21 +150,24 @@
             </div>
         </div>
 
-        <div class="field-group">
-            <label for="username">Username</label>
-            <div class="field-value-wrap">
-                <span id="username" class="field-value">—</span>
-                <button class="copy-btn" data-target="username" title="Copy">📋</button>
-            </div>
-        </div>
-
-        <!-- Password options live with the field they affect, same pattern as State/Age. -->
+        <!-- Username and Password grouped into one row; the password
+             options control stays compact below rather than spanning
+             the full row width. -->
         <div class="field-group stacked">
             <div class="field-row">
-                <label for="password">Password</label>
-                <div class="field-value-wrap">
-                    <span id="password" class="field-value">—</span>
-                    <button class="copy-btn" data-target="password" title="Copy">📋</button>
+                <div class="field-item">
+                    <label for="username">Username</label>
+                    <div class="field-value-wrap">
+                        <span id="username" class="field-value">—</span>
+                        <button class="copy-btn" data-target="username" title="Copy">📋</button>
+                    </div>
+                </div>
+                <div class="field-item">
+                    <label for="password">Password</label>
+                    <div class="field-value-wrap">
+                        <span id="password" class="field-value">—</span>
+                        <button class="copy-btn" data-target="password" title="Copy">📋</button>
+                    </div>
                 </div>
             </div>
             <div class="field-control-row">
