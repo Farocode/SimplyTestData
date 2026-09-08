@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banking Generator | Project Nebo</title>
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+<body class="tool-page">
+
+<div class="subnav">
+    <a href="index.html" class="back-link">&larr; Project Nebo</a>
+</div>
+
+<header class="site-header">
+    <div>
+        <h1>Banking Generator</h1>
+        <p>Safe fictional bank, account, and card test data.</p>
+    </div>
+    <button id="themeToggle">
+        🌙
+    </button>
+</header>
+
+<main class="container">
+    <section class="generator-panel">
+
+        <!-- Safe Mode is checked by default and overrides every
+             bank-identity field below to something obviously fake --
+             see docs/banking-generator-spec.md. Own row since it governs
+             the whole rest of the panel, not just one group. -->
+        <div class="field-group stacked">
+            <div class="field-row">
+                <label class="symbol-toggle">
+                    <input type="checkbox" id="safeMode" checked>
+                    Safe Mode (obviously fake bank name, routing 111111111, account 2222222222)
+                </label>
+            </div>
+        </div>
+
+        <!-- Bank leads Bank Name/Routing Number, same pattern as Plan Type
+             in Healthcare -- disabled while Safe Mode overrides it. -->
+        <div class="field-group stacked">
+            <div class="field-control-row">
+                <span class="control-label">Bank (ignored while Safe Mode is on)</span>
+                <select id="bankSelect">
+                    <option value="">Random</option>
+                </select>
+            </div>
+            <div class="field-row">
+                <div class="field-item">
+                    <label for="bankName">Bank Name</label>
+                    <div class="field-value-wrap">
+                        <span id="bankName" class="field-value">—</span>
+                        <button class="copy-btn" data-target="bankName" title="Copy">📋</button>
+                    </div>
+                </div>
+                <div class="field-item">
+                    <label for="routingNumber">Routing Number</label>
+                    <div class="field-value-wrap">
+                        <span id="routingNumber" class="field-value">—</span>
+                        <button class="copy-btn" data-target="routingNumber" title="Copy">📋</button>
+                    </div>
+                </div>
+            </div>
+            <!-- Account Number + Account Type always share their own
+                 line, same fixed-second-row pattern as Group
+                 Number/Member ID in Healthcare. -->
+            <div class="field-row">
+                <div class="field-item">
+                    <label for="accountNumber">Account Number</label>
+                    <div class="field-value-wrap">
+                        <span id="accountNumber" class="field-value">—</span>
+                        <button class="copy-btn" data-target="accountNumber" title="Copy">📋</button>
+                    </div>
+                </div>
+                <div class="field-item">
+                    <label for="accountType">Account Type</label>
+                    <div class="field-value-wrap">
+                        <span id="accountType" class="field-value">—</span>
+                        <button class="copy-btn" data-target="accountType" title="Copy">📋</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bank Address -- Street/City/State/Zip, no control needed
+             (driven by Safe Mode + Bank together). -->
+        <div class="field-group stacked">
+            <div class="field-row">
+                <div class="field-item">
+                    <label for="street">Street</label>
+                    <div class="field-value-wrap">
+                        <span id="street" class="field-value">—</span>
+                        <button class="copy-btn" data-target="street" title="Copy">📋</button>
+                    </div>
+                </div>
+                <div class="field-item">
+                    <label for="city">City</label>
+                    <div class="field-value-wrap">
+                        <span id="city" class="field-value">—</span>
+                        <button class="copy-btn" data-target="city" title="Copy">📋</button>
+                    </div>
+                </div>
+                <div class="field-item">
+                    <label for="state">State</label>
+                    <div class="field-value-wrap">
+                        <span id="state" class="field-value">—</span>
+                        <button class="copy-btn" data-target="state" title="Copy">📋</button>
+                    </div>
+                </div>
+                <div class="field-item">
+                    <label for="zip">Zip</label>
+                    <div class="field-value-wrap">
+                        <span id="zip" class="field-value">—</span>
+                        <button class="copy-btn" data-target="zip" title="Copy">📋</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card Network leads Card Number/Expiration/CVV. Independent of
+             Safe Mode -- a network-prefixed, Luhn-valid number is already
+             the same "obviously a test number" convention real payment
+             processors publish, not tied to any real account. -->
+        <div class="field-group stacked">
+            <div class="field-control-row">
+                <span class="control-label">Card Network (drives Card Number/CVV format)</span>
+                <select id="cardNetworkSelect">
+                    <option value="">Random</option>
+                    <option value="Visa">Visa</option>
+                    <option value="Mastercard">Mastercard</option>
+                    <option value="American Express">American Express</option>
+                    <option value="Discover">Discover</option>
+                </select>
+            </div>
+            <div class="field-row">
+                <div class="field-item">
+                    <label for="cardNetwork">Card Network</label>
+                    <div class="field-value-wrap">
+                        <span id="cardNetwork" class="field-value">—</span>
+                        <button class="copy-btn" data-target="cardNetwork" title="Copy">📋</button>
+                    </div>
+                </div>
+                <div class="field-item">
+                    <label for="cardNumber">Card Number</label>
+                    <div class="field-value-wrap">
+                        <span id="cardNumber" class="field-value">—</span>
+                        <button class="copy-btn" data-target="cardNumber" title="Copy">📋</button>
+                    </div>
+                </div>
+                <div class="field-item">
+                    <label for="expiration">Expiration</label>
+                    <div class="field-value-wrap">
+                        <span id="expiration" class="field-value">—</span>
+                        <button class="copy-btn" data-target="expiration" title="Copy">📋</button>
+                    </div>
+                </div>
+                <div class="field-item">
+                    <label for="cvv">CVV</label>
+                    <div class="field-value-wrap">
+                        <span id="cvv" class="field-value">—</span>
+                        <button class="copy-btn" data-target="cvv" title="Copy">📋</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button id="regenerateBtn" class="primary-btn">Generate</button>
+
+        <div class="export-row">
+            <span class="control-label">Records to export</span>
+            <div class="export-inputs">
+                <input type="number" id="exportCount" value="1" min="1" max="500" title="Number of records to export">
+                <button id="exportCsvBtn">Export CSV</button>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer class="site-footer">
+    <p>
+        Project Nebo v0.1.0-beta |
+        Runs locally in your browser
+    </p>
+</footer>
+
+<script src="js/theme.js"></script>
+<script src="js/banking.js"></script>
+<script src="js/clipboard.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        initializeTheme();
+    });
+</script>
+</body>
+</html>

@@ -31,8 +31,8 @@
 
 ## Next up
 - Healthcare card — DONE, see "Healthcare Generator" below
-- Build out Banking card
-- Build out QA Tools card (JSON/XML/SQL formatters)
+- Banking card — DONE, see "Banking Generator" below
+- Build out QA Tools card — logged wishlist below, not started
 
 ## Logged for later (not started) — from 2026-09-08 feedback
 
@@ -63,6 +63,35 @@ Verified: `node --check`, HTML div-balance + duplicate-id checks, and a headless
 - Delayed Part B effective date via employer-coverage SEP (separate from Part A's date).
 - AEP / Medicare Advantage OEP as plan-*switch* dates, distinct from initial Part A/B enrollment.
 - Tying this page's generated record to Personal Generator's (shared identity across tool pages) — each tool page is currently independent by design.
+
+## Banking Generator (banking.html) — DONE, built 2026-09-08
+
+Spec: `docs/banking-generator-spec.md`. Third tool page, `js/banking.js`, wired up from the index.html card.
+
+- **Safe Mode** — checked by default, per explicit user request. When on, Bank Name/Routing/Account/Address are all obviously fake (fictional bank name, routing `111111111`, account `2222222222`, a placeholder street in NYC or Wilmington DE — user's own suggestion). The Bank dropdown visibly disables while Safe Mode is on, since it has no effect.
+- **Bank → Bank Name/Routing Number, Account Number/Type** — 12 real US banks, each with a real ABA routing number verified against the bank's own site or Wise.com's routing database (all 12 independently re-checked against the actual ABA mod-10 checksum algorithm too — passed). HQ city/state is real per bank; the street and account number are always synthetic (no public registry to check account numbers against, same logic as SSN in Personal).
+- **Card Network → Card Number/Expiration/CVV** — real network BIN prefixes (Visa/Mastercard/Amex/Discover) with a correct Luhn check digit, the same convention real payment processors' own published test numbers use. Independent of Safe Mode since it's already a "not tied to a real account" convention by construction.
+- **CSV export** — same pattern as the other two pages.
+
+Verified: `node --check`, HTML div-balance + duplicate-id checks, and a headless smoke test — all 12 routing numbers pass the real ABA checksum algorithm; 8,000 generated card numbers (4 networks × 2,000) all Luhn-valid, correct length, correct prefix; Safe Mode never leaks a real bank name/routing/account across 1,000 samples and correctly overrides an explicit bank selection; real mode never produces the safe-mode sentinel values; CSV structure checked.
+
+**Not yet done: a visual look in Safari** — same standing limitation as every round this session.
+
+### Logged for later, not built
+- Regional routing-number variants — big banks (Chase, BofA, TD, etc.) actually have several real routing numbers depending on legacy-bank/state; this generator picked one well-documented number per bank rather than modeling every variant.
+
+## QA Tools card — wishlist logged 2026-09-08, not started
+
+User's favorite planned page, per their own words. Ideas mentioned so far, not yet spec'd or built:
+
+- Formatting/validation checks for JSON, JavaScript, SQL
+- Spelling and grammar checking
+- A "Hemingway filter" / rewriter (flag or simplify complex sentences)
+- Leading/trailing whitespace trimming
+- Case conversion: capitalize, camelCase, lowercase, etc.
+- General principle from the user: "whatever common languages, tools, translators, whatever, can be easily added and adapted without being its own new app or something, I'm open" — so lean toward broad, lightweight utilities over narrow one-off tools, as long as each stays a straightforward addition rather than its own separate application.
+
+Not scoped or built yet — needs its own spec pass when it's up next, same as the other three cards got.
 
 ## Ideas parked for later
 - Stylish global nav to switch between any tool page from any other tool page (not just back-to-home). Revisit once there are 2-3 tool pages built, so the pattern reflects real navigation needs instead of a guess.

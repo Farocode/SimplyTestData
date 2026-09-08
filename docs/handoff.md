@@ -4,39 +4,38 @@ Date: 2026-09-08
 
 ## Where things stand
 
-Healthcare Generator got two follow-up rounds after the initial build (both already pushed as a separate commit before this): a layout fix (Member ID/Group Number, MBI label) and then two new fields (NPI, Medication/Condition/Diagnosis Code). **This second round is not yet committed/pushed.**
+Banking Generator (`banking.html`) is built — the project's third tool page, wired up from the index.html card. **Not yet committed/pushed.** Healthcare's NPI/Medication round from earlier today is also still uncommitted, stacked underneath this.
 
 Repo: `~/Documents/GitHub/project-nebo` on the Mac (linked via device bridge). GitHub Pages: farocode.github.io/project-nebo/
 
 ## What just got built (this session, this round)
 
-Two new fields added per your follow-up feedback, after confirming scope with you first (fixed generator-side pool, not a user-facing picker; NPI + ICD-10 both wanted):
+Spec-then-build per your description (real banks/routing/account, safe mode default-on with all-1s/all-2s/fake name) plus one confirmed addition (payment card field). Spec: `docs/banking-generator-spec.md`, roadmap entry in `docs/roadmap.md`.
 
-- **NPI (Provider ID)** — paired with MBI on its own row, no control needed (same "two short IDs, no dropdown" pattern as Personal's First/Last Name). Real CMS check-digit algorithm (Luhn with the "80840" card-issuer prefix folded into a constant) — verified against CMS's own published worked example before writing any code, then re-verified against 5,000 generated NPIs.
-- **Medication → Condition → Diagnosis Code (ICD-10)** — fixed pool of 20 real medications (confirmed with you: pool size, not a checklist UI). Each medication's ICD-10 code was individually checked against icd10data.com rather than recalled from memory — full table's in `docs/healthcare-generator-spec.md`. A Medication selector leads the row (Random by default), same pattern as Plan Type/Enrollment Period.
+- **Safe Mode** — checked by default, exactly as you asked. Fictional bank name, routing `111111111`, account `2222222222`, placeholder street in NYC or Wilmington DE (your own suggestion, alternated randomly). The Bank dropdown visibly grays out while Safe Mode is on, since it's a no-op then.
+- **Bank → Bank Name/Routing Number, Account Number/Type** — 12 real US banks with real ABA routing numbers, each individually sourced (bank's own site where available, otherwise Wise.com's routing database) — full table with sources is in the spec. As an extra check, all 12 independently passed the real ABA checksum algorithm too. Account numbers are always synthetic even in real mode (no public registry to check against, same logic as SSN in Personal).
+- **Card Network → Card Number/Expiration/CVV** — Visa/Mastercard/Amex/Discover, real BIN prefixes with a correct Luhn check digit, same convention as the official test card numbers payment processors publish. This one's independent of Safe Mode since it's already "obviously not a real account" by construction.
+- **CSV export** — same pattern as the other two pages.
 
-Files: `js/healthcare.js`, `healthcare.html`, `docs/healthcare-generator-spec.md`, `docs/roadmap.md`.
+Files: `banking.html`, `js/banking.js` (new), `index.html` (Banking card now links to the tool), `docs/banking-generator-spec.md` (new), `docs/roadmap.md`.
 
 ## Verification done
 
-- `node --check js/healthcare.js` — syntax OK
-- HTML div-balance and duplicate-id checks — OK (23 unique ids)
-- Headless Node smoke test: NPI check digit matches CMS's own worked example exactly (base `123456789` → `3`); 5,000 generated NPIs all format- and check-digit-correct; medication pool confirmed at exactly 20 unique entries, all 20 reachable via "Random" over 5,000 draws; specific-medication selection resolves correctly; full record and CSV structure checked.
-- **Not yet done: a visual look in Safari.** Same standing limitation as every round this session — still can't get a live render from here. This round adds a new NPI/MBI pairing and a new 3-item Medication row, neither eyeballed yet.
+- `node --check js/banking.js` — syntax OK
+- HTML div-balance and duplicate-id checks — OK
+- Headless Node smoke test: all 12 routing numbers verified against the real ABA mod-10 checksum (independent of the sourcing); 8,000 generated card numbers (4 networks × 2,000 each) all Luhn-valid with correct length and prefix; Safe Mode checked across 1,000 samples — never produced a real bank name/routing, and correctly overrode an explicit bank selection; real mode checked across 1,000 samples — never produced the safe-mode sentinel values; CSV structure checked.
+- **Not yet done: a visual look in Safari.** Same standing limitation as every round this session.
 
 ## Not yet done — needs a look
 
-1. **Commit and push** this round (NPI + Medication fields, plus the spec/roadmap updates).
-2. **Visual check in Safari**, especially the new MBI/NPI row and the Medication/Condition/Diagnosis Code row.
-3. Still open from earlier rounds, untouched: Street/Phone position, more street name combos, condense the Personal Generator identity rows (First/Last/Full Name/SSN) — see `docs/roadmap.md`'s "Logged for later" section and `docs/identity-row-condense-spec.md`.
+1. **Commit and push** — this covers both this Banking round and the earlier Healthcare NPI/Medication round today.
+2. **Visual check in Safari**, especially the Safe Mode checkbox/disable behavior and the 4-item Card Network row.
+3. Still open from earlier rounds, untouched: Street/Phone position on Personal, more street name combos, condense the Personal Generator identity rows. See `docs/roadmap.md`'s "Logged for later" sections and `docs/identity-row-condense-spec.md`.
+4. **QA Tools is next** — you gave a first wishlist mid-session (JSON/JS/SQL formatting and validation, spelling/grammar, a Hemingway-style rewriter, whitespace trim, case conversion — capitalize/camelCase/lowercase/etc., and a general "keep it lightweight, no separate apps" principle). Logged in `docs/roadmap.md` under "QA Tools card — wishlist," not scoped or spec'd yet.
 
 ## Next up (bigger picture)
 
-Per the roadmap:
-- Build out the Banking card
-- Build out the QA Tools card (JSON/XML/SQL formatters)
-- A pre-release refactor/cleanup pass across the codebase
-- A color/style pass beyond the current white/dark-blue look
+Per the roadmap: build out QA Tools (your stated favorite), then a pre-release refactor/cleanup pass across the codebase now that there are three tool pages, and a color/style pass beyond the current white/dark-blue look.
 
 ## Dev loop reminder
 
