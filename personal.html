@@ -148,11 +148,17 @@
             </div>
         </div>
 
-        <div class="field-group">
-            <label for="email">Email</label>
-            <div class="field-value-wrap">
-                <span id="email" class="field-value">—</span>
-                <button class="copy-btn" data-target="email" title="Copy">📋</button>
+        <!-- "stacked" here only gets the full-row grid span (same fix
+             as Full Name earlier) — Email was alone in a single ~400px
+             grid cell with an empty one beside it, not the full width
+             it looked like it had, which is why long addresses wrapped. -->
+        <div class="field-group stacked">
+            <div class="field-row">
+                <label for="email">Email</label>
+                <div class="field-value-wrap">
+                    <span id="email" class="field-value">—</span>
+                    <button class="copy-btn" data-target="email" title="Copy">📋</button>
+                </div>
             </div>
         </div>
 

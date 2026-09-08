@@ -53,3 +53,6 @@
 ## Deferred by design
 - Branching/release process — solo dev, nothing live to protect yet; will pick this up hands-on when it's actually needed.
 - Full refactor/cleanup pass (section grouping, consistent comments) — planned after more cards are built, not after every feature.
+
+## Email full-width fix
+- DONE — Same bug as Full Name: Email was a plain (non-stacked) field-group with no plain sibling to pair with (City/State/Zip stacked before it, Username/Password stacked after it), so it landed alone in a single ~400px grid cell with an empty cell beside it — not the full width it visually appeared to have. Now spans the full row like the other fixed rows. Checked the rest of the field order too — no other orphaned plain rows remain (First/Last and Phone/Street are properly paired, everything else is full-width).
