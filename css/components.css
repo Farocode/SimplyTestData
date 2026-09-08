@@ -244,6 +244,32 @@ button:hover {
     accent-color: var(--accent);
     cursor: pointer;
 }
+.export-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem 0.75rem;
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+}
+.export-inputs {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+.export-inputs input[type="number"] {
+    width: 70px;
+    padding: 0.35rem 0.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 0.4rem;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+}
 .field-value-wrap {
     display: flex;
     align-items: center;

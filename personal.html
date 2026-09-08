@@ -195,6 +195,16 @@
         </div>
 
         <button id="regenerateBtn" class="primary-btn">Generate</button>
+
+        <!-- Bulk export — styled like the password length control, but
+             its own row since it applies to every field, not just one. -->
+        <div class="export-row">
+            <span class="control-label">Records to export</span>
+            <div class="export-inputs">
+                <input type="number" id="exportCount" value="1" min="1" max="500" title="Number of records to export">
+                <button id="exportCsvBtn">Export CSV</button>
+            </div>
+        </div>
     </section>
 </main>
 

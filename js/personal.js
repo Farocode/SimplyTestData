@@ -4247,11 +4247,85 @@ function resolveStateSelection(selectedValue) {
     return selectedValue;
 }
 
+// --- CSV export -------------------------------------------------------
+
+const CSV_HEADERS = [
+    "First Name", "Last Name", "Full Name", "SSN", "Date of Birth", "Age",
+    "Phone", "Street", "City", "State", "Zip", "Email", "Username", "Password"
+];
+
+function getExportCount() {
+    const input = document.getElementById("exportCount");
+    let count = parseInt(input.value, 10);
+    if (isNaN(count) || count < 1) count = 1;
+    if (count > 500) count = 500;
+    return count;
+}
+
+function escapeCsvField(value) {
+    const str = String(value);
+    if (/["\n\r,]/.test(str)) {
+        return `"${str.replace(/"/g, '""')}"`;
+    }
+    return str;
+}
+
+function personToCsvRow(person) {
+    const fields = [
+        person.firstName,
+        person.lastName,
+        person.fullName,
+        person.ssn,
+        formatDate(person.dob),
+        person.age,
+        person.phone,
+        person.street,
+        person.city,
+        person.state,
+        person.zip,
+        person.email,
+        person.username,
+        person.password
+    ];
+    return fields.map(escapeCsvField).join(",");
+}
+
+function generateCsv(count, minAge, maxAge, rawStateValue, passwordOptions) {
+    const rows = [CSV_HEADERS.join(",")];
+    for (let i = 0; i < count; i++) {
+        // Resolve "Random" fresh per row so a bulk export gets real
+        // variety; a specific state selection stays fixed for every row,
+        // matching what that dropdown already means on a single Generate.
+        const stateAbbr = resolveStateSelection(rawStateValue);
+        const person = generatePerson(minAge, maxAge, stateAbbr, passwordOptions);
+        rows.push(personToCsvRow(person));
+    }
+    return rows.join("\r\n");
+}
+
+function downloadCsv(csvText) {
+    const blob = new Blob([csvText], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const today = new Date();
+    const stamp = `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, "0")}${String(today.getDate()).padStart(2, "0")}`;
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `nebo-personal-records-${stamp}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+}
+
+// --- Init ---------------------------------------------------------------
+
 function initializePersonalGenerator() {
     populateStateDropdown();
 
     const regenerateBtn = document.getElementById("regenerateBtn");
     const stateSelect = document.getElementById("stateSelect");
+    const exportCsvBtn = document.getElementById("exportCsvBtn");
 
     regenerateBtn.addEventListener("click", () => {
         const { min, max } = getAgeRange();
@@ -4259,6 +4333,14 @@ function initializePersonalGenerator() {
         const passwordOptions = getPasswordOptions();
         const person = generatePerson(min, max, stateAbbr, passwordOptions);
         renderPerson(person);
+    });
+
+    exportCsvBtn.addEventListener("click", () => {
+        const { min, max } = getAgeRange();
+        const passwordOptions = getPasswordOptions();
+        const count = getExportCount();
+        const csvText = generateCsv(count, min, max, stateSelect.value, passwordOptions);
+        downloadCsv(csvText);
     });
 
     const { min, max } = getAgeRange();

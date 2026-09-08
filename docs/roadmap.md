@@ -56,3 +56,8 @@
 
 ## Email full-width fix
 - DONE — Same bug as Full Name: Email was a plain (non-stacked) field-group with no plain sibling to pair with (City/State/Zip stacked before it, Username/Password stacked after it), so it landed alone in a single ~400px grid cell with an empty cell beside it — not the full width it visually appeared to have. Now spans the full row like the other fixed rows. Checked the rest of the field order too — no other orphaned plain rows remain (First/Last and Phone/Street are properly paired, everything else is full-width).
+
+## Export to CSV (done)
+- Spec: docs/csv-export-spec.md. Exports all fields as they appear, with a record-count input (default 1, max 500) next to a new Export CSV button below Generate.
+- Reuses generatePerson() per row. Handles comma/quote/newline escaping, CRLF line endings, filename stamped with the date (nebo-personal-records-YYYYMMDD.csv).
+- Verified: node syntax check, HTML/CSS balance checks, headless smoke test of generateCsv/escapeCsvField with sample data.
